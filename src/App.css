@@ -1,0 +1,31 @@
+.App {
+  text-align: center;
+  padding: 2rem;
+  font-family: sans-serif;
+}
+
+/* Rejilla de botones del menú principal */
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem auto;
+  max-width: 600px;
+}
+
+/* Botones del menú principal */
+.menu-btn {
+  padding: 1.5rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+  background-color: #0077ff;
+  color: white;
+  border: none;
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.menu-btn:hover {
+  background-color: #005fcc;
+}

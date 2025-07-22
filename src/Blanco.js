@@ -1,0 +1,102 @@
+import { useState } from 'react';
+import './Blanco.css';
+
+function Blanco() {
+  const [showPopup, setShowPopup] = useState(false);
+  const [stage, setStage] = useState('setup');
+  const [word, setWord] = useState('');
+  const [players, setPlayers] = useState(3);
+  const [current, setCurrent] = useState(1);
+  const [blankIndex, setBlankIndex] = useState(null);
+  const [showWord, setShowWord] = useState(false);
+
+  const startGame = () => {
+    if (!word.trim()) {
+      alert('Bitte gib ein Wort ein, um zu spielen.');
+      return;
+    }
+    const randomBlank = Math.floor(Math.random() * players) + 1;
+    setBlankIndex(randomBlank);
+    setStage('player');
+  };
+
+  const nextPlayer = () => {
+    setShowWord(false);
+    if (current < players) {
+      setCurrent(current + 1);
+    } else {
+      setStage('end');
+    }
+  };
+
+  const resetGame = () => {
+    setStage('setup');
+    setCurrent(1);
+    setWord('');
+    setBlankIndex(null);
+    setShowWord(false);
+  };
+
+  return (
+    <div className="container">
+      {stage === 'setup' && (
+        <div className="card">
+          <h2>🎲 Spiel konfigurieren</h2>
+          <label>Anzahl der Spieler:</label>
+          <div className="player-counter">
+            <button onClick={() => setPlayers(prev => Math.max(2, prev - 1))}>−</button>
+            <span>{players}</span>
+            <button onClick={() => setPlayers(prev => prev + 1)}>+</button>
+          </div>
+          <label>Wort:</label>
+          <input
+            type="text"
+            value={word}
+            onChange={e => setWord(e.target.value)}
+          />
+          <button className="btn-primary" onClick={startGame}>PLAY</button>
+        </div>
+      )}
+
+      {stage === 'player' && (
+        <div className="card">
+          <h2>Spieler {current}</h2>
+          {!showWord ? (
+            <button onClick={() => setShowWord(true)}>👁 Wort anzeigen</button>
+          ) : (
+            <>
+              <p className={current === blankIndex ? 'blank' : 'word'}>
+                {current === blankIndex ? 'Blanco' : word}
+              </p>
+              <button onClick={nextPlayer}>Nächster Spieler ➡️</button>
+            </>
+          )}
+        </div>
+      )}
+
+      {stage === 'end' && (
+        <div className="card">
+          <h2>🎉 Das Spiel beginnt!</h2>
+          <div className="button-row">
+            <button onClick={() => setShowPopup(true)}> Geheimwort anzeigen 🕵️</button>
+            <button className="btn-primary" onClick={resetGame}>
+              🔄 Neue Runde
+            </button>
+          </div>
+        </div>
+      )}
+	  
+	  {showPopup && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h3>Das Geheimwort war:</h3>
+            <p className="revealed-word">{word}</p>
+            <button onClick={() => setShowPopup(false)}>Schließen</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default Blanco;

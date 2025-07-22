@@ -1,0 +1,23 @@
+.cell.blue {
+  background-color: #005eff; /* kräftigeres Blau */
+}
+
+.cell.red {
+  background-color: #e60000; /* kräftigeres Rot */
+}
+
+.cell.yellow {
+  background-color: #ffd700; /* satteres Gelb */
+}
+
+.cell.green {
+  background-color: #00b300; /* sattes Grün */
+}
+
+.cell.orange {
+  background-color: #ff8000; /* kräftiges Orange */
+}
+
+.cell.violet {
+  background-color: #8a2be2; /* satteres Violett */
+}
