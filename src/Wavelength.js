@@ -2,6 +2,37 @@ import React, { useState, useEffect } from 'react';
 import './Wavelength.css';
 
 const DEFAULT_PAIRS = [
+  { top: "Logisch", bottom: "Unlogisch" },
+  { top: "Liebe ich", bottom: "Hasse ich" },
+  { top: "Großstadt", bottom: "Dorf" },
+  { top: "Jederzeit", bottom: "Nie im Leben" },
+  { top: "Bestes Jahr in der Geschichte", bottom: "Schlimmstes Jahr in der Geschichte" },
+  { top: "Geht klar", bottom: "Geht gar nicht" },
+  { top: "Traum", bottom: "Albtraum" },
+  { top: "Nützlich in einer Apokalypse", bottom: "Nutzlos in einer Apokalypse" },
+  { top: "Langweilig", bottom: "Spannend" },
+  { top: "Ganz klar Betrug", bottom: "Auf keinen Fall Betrug" },
+  { top: "Toxisch", bottom: "Gesund" },
+  { top: "Red Flag", bottom: "Green Flag" },
+  { top: "Guter Treffpunkt", bottom: "Schlechter Treffpunkt" },
+  { top: "Bester Tag des Jahres", bottom: "Schlimmster Tag des Jahres" },
+  { top: "Guter Urlaubsort", bottom: "Bleibe lieber zuhause" },
+  { top: "Boomer", bottom: "Millennial" },
+  { top: "Nützlicher Körperteil", bottom: "Nutzloser Körperteil" },
+  { top: "Wichtig in der Geschichte", bottom: "Unwichtig in der Geschichte" },
+  { top: "Hochwertig", bottom: "Schlechte Qualität" },
+  { top: "Brauchen", bottom: "Mögen" },
+  { top: "Wunderschönes Wort", bottom: "Hässliches Wort" },
+  { top: "Gefährlich", bottom: "Ungefährlich" },
+  { top: "Einfach zu töten", bottom: "Schwer zu töten" },
+  { top: "Überschätzter Buchstabe", bottom: "Unterschätzter Buchstabe" },
+  { top: "Typisch deutsch", bottom: "Muss chinesisch sein" },
+  { top: "Oft gemacht", bottom: "Selten gemacht" },
+  { top: "Hübscher Mann", bottom: "Hässlicher Mann" },
+  { top: "Bester Emoji", bottom: "Nutzloser Emoji" },
+  { top: "Nützlich für dich", bottom: "Nützlich für die Gesellschaft" },
+  { top: "Riecht super", bottom: "Uh, eklig" },
+  { top: "Katzenname", bottom: "Hundename" },
   { top: "Kalt", bottom: "Heiß" },
   { top: "Groß", bottom: "Klein" },
   { top: "Schnell", bottom: "Langsam" },
@@ -9,22 +40,11 @@ const DEFAULT_PAIRS = [
   { top: "Natürlich", bottom: "Künstlich" },
   { top: "Alt", bottom: "Modern" },
   { top: "Gesund", bottom: "Ungesund" },
-  { top: "Weich", bottom: "Rau" },
-  { top: "Dunkel", bottom: "Hell" },
   { top: "Billig", bottom: "Teuer" },
-  { top: "Privat", bottom: "Öffentlich" },
-  { top: "Kindisch", bottom: "Erwachsen" },
   { top: "Leise", bottom: "Laut" },
   { top: "Einfach", bottom: "Komplex" },
   { top: "Stark", bottom: "Schwach" },
-  { top: "Vertrauenswürdig", bottom: "Verdächtig" },
-  { top: "Freundlich", bottom: "Feindlich" },
-  { top: "Realistisch", bottom: "Fantastisch" },
-  { top: "Mainstream", bottom: "Alternativ" },
-  { top: "Normal", bottom: "Seltsam" },
-  { top: "Moralisch", bottom: "Unmoralisch" },
   { top: "Schön", bottom: "Hässlich" },
-  { top: "Entspannt", bottom: "Gestresst" },
   { top: "Emotional", bottom: "Rational" },
   { top: "Konservativ", bottom: "Progressiv" },
   { top: "Flexibel", bottom: "Starr" },
@@ -33,26 +53,18 @@ const DEFAULT_PAIRS = [
   { top: "Gewöhnlich", bottom: "Selten" },
   { top: "Praktisch", bottom: "Theoretisch" },
   { top: "Kreativ", bottom: "Logisch" },
-  { top: "Leidenschaftlich", bottom: "Kühl" },
   { top: "Komisch", bottom: "Tragisch" },
-  { top: "Direkt", bottom: "Indirekt" },
-  { top: "Bekannt", bottom: "Unbekannt" },
   { top: "Vertraut", bottom: "Exotisch" },
   { top: "Traditionell", bottom: "Innovativ" },
-  { top: "Verantwortlich", bottom: "Verantwortungslos" },
   { top: "Sichtbar", bottom: "Versteckt" },
   { top: "Spontan", bottom: "Geplant" },
   { top: "Optimistisch", bottom: "Pessimistisch" },
-  { top: "Frei", bottom: "Eingeschränkt" },
-  { top: "Ethnisch korrekt", bottom: "Unethisch" },
+  { top: "Ethisch korrekt", bottom: "Unethisch" },
   { top: "Beliebt", bottom: "Unbeliebt" },
   { top: "Formell", bottom: "Informell" },
   { top: "Zart", bottom: "Grob" },
-  { top: "Großmaßstäbig", bottom: "Kleinmaßstäbig" },
   { top: "Klassisch", bottom: "Modern" },
-  { top: "Wörtlich", bottom: "Metaphorisch" },
-  { top: "Offensichtlich", bottom: "Verschlüsselt" },
-  { top: "Logisch", bottom: "Unlogisch" }
+  { top: "Wörtlich", bottom: "Metaphorisch" }
 ];
 
 const savePairs = (pairs) => {
@@ -74,7 +86,7 @@ const Wavelength = () => {
     return stored ? JSON.parse(stored) : DEFAULT_PAIRS;
   });
 
-  const [phase, setPhase] = useState('config'); // config | show | guess | result
+  const [phase, setPhase] = useState('config');
   const [topWord, setTopWord] = useState('');
   const [bottomWord, setBottomWord] = useState('');
   const [correctPos, setCorrectPos] = useState(null);
@@ -82,6 +94,7 @@ const Wavelength = () => {
   const [newTop, setNewTop] = useState('');
   const [newBottom, setNewBottom] = useState('');
   const [lastIndex, setLastIndex] = useState(null);
+  const [positionStats, setPositionStats] = useState(Array(9).fill(0));
 
   useEffect(() => {
     savePairs(pairs);
@@ -93,7 +106,18 @@ const Wavelength = () => {
     const pair = pairs[index];
     setTopWord(pair.top);
     setBottomWord(pair.bottom);
-    setCorrectPos(Math.floor(Math.random() * 7));
+
+    // 10% mehr Wahrscheinlichkeit für 0 und 8
+    const weightedPositions = [0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 8];
+    const randomPos = weightedPositions[Math.floor(Math.random() * weightedPositions.length)];
+    setCorrectPos(randomPos);
+
+    setPositionStats((prev) => {
+      const updated = [...prev];
+      updated[randomPos]++;
+      return updated;
+    });
+
     setSelectedPos(null);
     setLastIndex(index);
     setPhase('show');
@@ -112,6 +136,7 @@ const Wavelength = () => {
     localStorage.removeItem('wavelengthPairs');
     setPairs(DEFAULT_PAIRS);
     setLastIndex(null);
+    setPositionStats(Array(9).fill(0));
   };
 
   const handleGuess = (index) => {
@@ -150,7 +175,7 @@ const Wavelength = () => {
     <div className="wavelength-game">
       <h2>{topWord}</h2>
       <div className="scale">
-        {[...Array(7)].map((_, i) => (
+        {[...Array(9)].map((_, i) => (
           <div
             key={i}
             className={`zone ${selectedPos === i ? 'selected' : ''}`}
@@ -163,7 +188,9 @@ const Wavelength = () => {
         ))}
       </div>
       <h2>{bottomWord}</h2>
+
       {phase === 'show' && <button onClick={() => setPhase('guess')}>Weiter</button>}
+
       {phase === 'result' && (
         <>
           <button className="btn-primary" onClick={nextRound}>Neue Runde</button>

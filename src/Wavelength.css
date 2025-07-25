@@ -46,8 +46,8 @@ button:disabled,
 /* Escala vertical del juego */
 .scale {
   width: 100px;
-  height: 350px;
-  background: linear-gradient(to top, white, navy);
+  height: 380px;
+  background: linear-gradient(to top, white, skyblue);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -69,25 +69,31 @@ button:disabled,
 
 .marker {
   position: absolute;
-  left: 0;
-  right: 0;
   height: 8px;
   border-radius: 4px;
 }
 
+/* ✅ MARCADOR INICIAL – rojo y más ancho */
 .marker.black {
-  background-color: black;
+  background-color: red;
   top: 50%;
   transform: translateY(-50%);
+  width: 130px;        /* más ancho que la escala */
+  left: -15px;         /* sobresalir por los lados */
+  right: auto;
 }
 
+/* ✅ MARCADOR DE JUGADOR – negro y dentro de escala */
 .marker.red {
-  background-color: red;
+  background-color: black;
   bottom: 50%;
   transform: translateY(50%);
+  left: 0;
+  right: 0;
+  width: auto;         /* ocupa el 100% por defecto */
 }
 
-/* Para filas de botones (como en la fase "result") */
+/* Fila de botones */
 .button-row {
   display: flex;
   justify-content: center;
