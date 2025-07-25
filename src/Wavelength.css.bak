@@ -46,8 +46,8 @@ button:disabled,
 /* Escala vertical del juego */
 .scale {
   width: 100px;
-  height: 350px;
-  background: linear-gradient(to top, white, navy);
+  height: 380px;
+  background: linear-gradient(to top, white, skyblue);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -69,25 +69,30 @@ button:disabled,
 
 .marker {
   position: absolute;
-  left: 0;
-  right: 0;
   height: 8px;
   border-radius: 4px;
 }
 
+/* Marcador correcto (visualmente rojo, dentro de escala) */
 .marker.black {
-  background-color: black;
+  background-color: red;
   top: 50%;
+  left: 0;
+  right: 0;
   transform: translateY(-50%);
 }
 
+/* Marcador del jugador (visualmente negro, más ancho que la escala) */
 .marker.red {
-  background-color: red;
+  background-color: black;
   bottom: 50%;
   transform: translateY(50%);
+  width: 130px;         /* más ancho que la escala (100px) */
+  left: -15px;          /* sobresale 15px por izquierda */
+  right: auto;          /* evita conflicto con right: 0 */
 }
 
-/* Para filas de botones (como en la fase "result") */
+/* Fila de botones */
 .button-row {
   display: flex;
   justify-content: center;
@@ -99,4 +104,29 @@ button:disabled,
 .button-row .btn {
   flex: 1;
   max-width: 200px;
+}
+
+.btn-primary {
+  background-color: #004aad;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin: 0.5rem auto;
+  display: block;
+  width: 100%;
+  max-width: 300px;
+}
+
+.btn-primary:hover {
+  background-color: #003080;
+}
+
+.btn-primary:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
 }
