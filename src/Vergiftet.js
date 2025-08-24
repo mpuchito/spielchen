@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import './Vergiftet.css';
+import { LanguageContext } from './LanguageContext';
 
 const colors = ['blue', 'red', 'yellow', 'green', 'orange', 'violet'];
 
@@ -13,19 +14,34 @@ const generateGrid = (count) => {
 };
 
 const Vergiftet = () => {
+  const { translations } = useContext(LanguageContext);
+
   const rows = 6;
   const cols = 6;
 
   const [grid, setGrid] = useState([]);
   const [phase, setPhase] = useState('selectP1');
   const [poisonedIndexes, setPoisonedIndexes] = useState([]);
-  const [popup, setPopup] = useState('Spieler 1 wählen');
+  const [popup, setPopup] = useState('');
   const [lastMoveIndex, setLastMoveIndex] = useState(null);
 
   useEffect(() => {
     const totalCells = rows * cols;
     setGrid(generateGrid(totalCells));
-  }, []);
+    setPopup(translations.selectP1);
+  }, [translations]);
+
+  useEffect(() => {
+    if (phase === 'selectP1') {
+      setPopup(translations.selectP1);
+    } else if (phase === 'selectP2') {
+      setPopup(translations.selectP2);
+    } else if (phase === 'summary') {
+      setPopup(translations.poisonShown);
+    } else if (phase === 'lost') {
+      setPopup(translations.youLost);
+    }
+  }, [translations, phase]);
 
   const handleCellClick = (index) => {
     if (!grid[index].visible || phase === 'lost' || phase === 'summary') return;
@@ -50,7 +66,7 @@ const Vergiftet = () => {
       if (poisonedIndexes.includes(index)) {
         newGrid[index].selectedBy = 'lost';
         setGrid(newGrid);
-        setPopup('DU HAST VERLOREN');
+        setPopup(translations.youLost);
         setPhase('lost');
       } else {
         newGrid[index].visible = false;
@@ -68,7 +84,7 @@ const Vergiftet = () => {
     });
     setGrid(newGrid);
     setPhase('selectP2');
-    setPopup('Spieler 2 wählen');
+    setPopup(translations.selectP2);
   };
 
   const confirmStartGame = () => {
@@ -88,7 +104,7 @@ const Vergiftet = () => {
     setGrid(generateGrid(totalCells));
     setPoisonedIndexes([]);
     setPhase('selectP1');
-    setPopup('Spieler 1 wählen');
+    setPopup(translations.selectP1);
     setLastMoveIndex(null);
   };
 
@@ -100,7 +116,7 @@ const Vergiftet = () => {
     });
     setGrid(newGrid);
     setPhase('summary');
-    setPopup('Vergiftete Felder angezeigt');
+    setPopup(translations.poisonShown);
   };
 
   return (
@@ -110,8 +126,8 @@ const Vergiftet = () => {
           <p>{popup}</p>
           {phase === 'lost' || phase === 'summary' ? (
             <>
-              <button onClick={restart}>Neues Spiel</button>
-              <button onClick={() => window.location.href = '/'}>Startseite</button>
+              <button onClick={restart}>{translations.newGame}</button>
+              <button onClick={() => window.location.href = '/'}>{translations.home}</button>
             </>
           ) : null}
         </div>
@@ -119,19 +135,19 @@ const Vergiftet = () => {
 
       {phase === 'waitP2' && (
         <div className="summary-button">
-          <button onClick={confirmPlayer2}>Spiel starten</button>
+          <button onClick={confirmPlayer2}>{translations.startGame}</button>
         </div>
       )}
 
       {phase === 'waitPlay' && (
         <div className="summary-button">
-          <button onClick={confirmStartGame}>Spiel starten</button>
+          <button onClick={confirmStartGame}>{translations.startGame}</button>
         </div>
       )}
 
       {phase === 'lost' && (
         <div className="summary-button">
-          <button onClick={showSummary}>Vergiftete Felder zeigen</button>
+          <button onClick={showSummary}>{translations.showPoisoned}</button>
         </div>
       )}
 

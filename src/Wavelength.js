@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import './Wavelength.css';
+import { LanguageContext } from './LanguageContext';
 
 const DEFAULT_PAIRS = [
   { top: "Logisch", bottom: "Unlogisch" },
@@ -33,38 +34,7 @@ const DEFAULT_PAIRS = [
   { top: "Nützlich für dich", bottom: "Nützlich für die Gesellschaft" },
   { top: "Riecht super", bottom: "Uh, eklig" },
   { top: "Katzenname", bottom: "Hundename" },
-  { top: "Kalt", bottom: "Heiß" },
-  { top: "Groß", bottom: "Klein" },
-  { top: "Schnell", bottom: "Langsam" },
-  { top: "Intelligent", bottom: "Dumm" },
-  { top: "Natürlich", bottom: "Künstlich" },
-  { top: "Alt", bottom: "Modern" },
-  { top: "Gesund", bottom: "Ungesund" },
-  { top: "Billig", bottom: "Teuer" },
-  { top: "Leise", bottom: "Laut" },
-  { top: "Einfach", bottom: "Komplex" },
-  { top: "Stark", bottom: "Schwach" },
-  { top: "Schön", bottom: "Hässlich" },
-  { top: "Emotional", bottom: "Rational" },
-  { top: "Konservativ", bottom: "Progressiv" },
-  { top: "Flexibel", bottom: "Starr" },
-  { top: "Grob", bottom: "Höflich" },
-  { top: "Schwer", bottom: "Leicht" },
-  { top: "Gewöhnlich", bottom: "Selten" },
-  { top: "Praktisch", bottom: "Theoretisch" },
-  { top: "Kreativ", bottom: "Logisch" },
-  { top: "Komisch", bottom: "Tragisch" },
-  { top: "Vertraut", bottom: "Exotisch" },
-  { top: "Traditionell", bottom: "Innovativ" },
-  { top: "Sichtbar", bottom: "Versteckt" },
-  { top: "Spontan", bottom: "Geplant" },
-  { top: "Optimistisch", bottom: "Pessimistisch" },
-  { top: "Ethisch korrekt", bottom: "Unethisch" },
-  { top: "Beliebt", bottom: "Unbeliebt" },
-  { top: "Formell", bottom: "Informell" },
-  { top: "Zart", bottom: "Grob" },
-  { top: "Klassisch", bottom: "Modern" },
-  { top: "Wörtlich", bottom: "Metaphorisch" }
+  { top: "Kalt", bottom: "Heiß" }
 ];
 
 const savePairs = (pairs) => {
@@ -81,6 +51,8 @@ const getRandomIndex = (length, exclude) => {
 };
 
 const Wavelength = () => {
+  const { translations } = useContext(LanguageContext);
+
   const [pairs, setPairs] = useState(() => {
     const stored = localStorage.getItem('wavelengthPairs');
     return stored ? JSON.parse(stored) : DEFAULT_PAIRS;
@@ -107,7 +79,6 @@ const Wavelength = () => {
     setTopWord(pair.top);
     setBottomWord(pair.bottom);
 
-    // 10% mehr Wahrscheinlichkeit für 0 und 8
     const weightedPositions = [0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 8];
     const randomPos = weightedPositions[Math.floor(Math.random() * weightedPositions.length)];
     setCorrectPos(randomPos);
@@ -151,21 +122,21 @@ const Wavelength = () => {
   if (phase === 'config') {
     return (
       <div className="config-screen">
-        <h2>Wortpaare konfigurieren</h2>
+        <h2>{translations.wavelength_config}</h2>
         <input
-          placeholder="Wort oben"
+          placeholder={translations.topWordPlaceholder}
           value={newTop}
           onChange={(e) => setNewTop(e.target.value)}
         />
         <input
-          placeholder="Wort unten"
+          placeholder={translations.bottomWordPlaceholder}
           value={newBottom}
           onChange={(e) => setNewBottom(e.target.value)}
         />
-        <button onClick={addPair}>Paar hinzufügen</button>
-        <button onClick={resetPairs}>Alle Paare löschen</button>
+        <button onClick={addPair}>{translations.addPair}</button>
+        <button onClick={resetPairs}>{translations.clearPairs}</button>
         <button className="btn-primary" disabled={pairs.length === 0} onClick={startGame}>
-          Spiel starten
+          {translations.startGame}
         </button>
       </div>
     );
@@ -189,12 +160,12 @@ const Wavelength = () => {
       </div>
       <h2>{bottomWord}</h2>
 
-      {phase === 'show' && <button onClick={() => setPhase('guess')}>Weiter</button>}
+      {phase === 'show' && <button onClick={() => setPhase('guess')}>{translations.continue}</button>}
 
       {phase === 'result' && (
         <>
-          <button className="btn-primary" onClick={nextRound}>Neue Runde</button>
-          <button onClick={() => window.location.href = '/'}>Startseite</button>
+          <button className="btn-primary" onClick={nextRound}>{translations.newRound}</button>
+          <button onClick={() => window.location.href = '/'}>{translations.home}</button>
         </>
       )}
     </div>

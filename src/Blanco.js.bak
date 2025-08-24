@@ -2,6 +2,7 @@ import { useState } from 'react';
 import './Blanco.css';
 
 function Blanco() {
+  const [showPopup, setShowPopup] = useState(false);
   const [stage, setStage] = useState('setup');
   const [word, setWord] = useState('');
   const [players, setPlayers] = useState(3);
@@ -77,12 +78,20 @@ function Blanco() {
         <div className="card">
           <h2>🎉 Das Spiel beginnt!</h2>
           <div className="button-row">
-            <button onClick={() => alert('Das Wort war: ' + word)}>
-              Geheimwort anzeigen 🕵️
-            </button>
+            <button onClick={() => setShowPopup(true)}> Geheimwort anzeigen 🕵️</button>
             <button className="btn-primary" onClick={resetGame}>
               🔄 Neue Runde
             </button>
+          </div>
+        </div>
+      )}
+	  
+	  {showPopup && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h3>Das Geheimwort war:</h3>
+            <p className="revealed-word">{word}</p>
+            <button onClick={() => setShowPopup(false)}>Schließen</button>
           </div>
         </div>
       )}

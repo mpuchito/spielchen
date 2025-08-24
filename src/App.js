@@ -1,14 +1,24 @@
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { useContext } from 'react';
+import { LanguageContext } from './LanguageContext';
+import LanguageSwitcher from './LanguageSwitcher';
 import Blanco from './Blanco';
 import Wavelength from './Wavelength';
 import Vergiftet from './Vergiftet';
 import './App.css';
 
 function App() {
+  const { translations } = useContext(LanguageContext);
+
   return (
     <Router>
       <div className="App">
-        <h1>Spielchen 🎲</h1>
+        <header className="app-header">
+          <div className="language-corner">
+            <LanguageSwitcher />
+          </div>
+          <h1 className="main-title">Spielchen 🎲</h1>
+        </header>
 
         <nav className="menu-grid">
           <Link to="/blanco">

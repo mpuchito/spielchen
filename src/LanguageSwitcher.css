@@ -1,0 +1,47 @@
+.language-switcher {
+  display: flex;
+  gap: 0.5rem;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 10;
+}
+
+.lang-btn {
+  width: 32px;
+  height: 20px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  cursor: pointer;
+  padding: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: transform 0.2s;
+}
+
+.lang-btn:hover {
+  transform: scale(1.1);
+}
+
+.lang-btn.active {
+  outline: 2px solid #000;
+}
+
+/* Deutschland 🇩🇪 */
+.lang-de {
+  background: linear-gradient(to bottom, #000 33.3%, #d00 33.3% 66.6%, #ffce00 66.6%);
+}
+
+/* USA 🇺🇸 */
+.lang-en {
+  background:
+    repeating-linear-gradient(to bottom, #fff 0px, #fff 2px, #c00 2px, #c00 4px),
+    radial-gradient(circle at 25% 30%, #0052a5 40%, transparent 41%);
+  background-size: cover;
+}
+
+/* España 🇪🇸 */
+.lang-es {
+  background: linear-gradient(to bottom, #aa151b 25%, #f1bf00 25% 75%, #aa151b 75%);
+}

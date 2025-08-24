@@ -1,0 +1,30 @@
+// LanguageSwitcher.js
+import React, { useContext } from 'react';
+import './LanguageSwitcher.css';
+import { LanguageContext } from './LanguageContext';
+
+const LanguageSwitcher = () => {
+  const { language, setLanguage } = useContext(LanguageContext);
+
+  return (
+    <div className="language-switcher">
+      <button
+        className={`lang-btn ${language === 'de' ? 'active' : ''} lang-de`}
+        onClick={() => setLanguage('de')}
+        title="Deutsch"
+      ></button>
+      <button
+        className={`lang-btn ${language === 'en' ? 'active' : ''} lang-en`}
+        onClick={() => setLanguage('en')}
+        title="English"
+      ></button>
+      <button
+        className={`lang-btn ${language === 'es' ? 'active' : ''} lang-es`}
+        onClick={() => setLanguage('es')}
+        title="Español"
+      ></button>
+    </div>
+  );
+};
+
+export default LanguageSwitcher;
