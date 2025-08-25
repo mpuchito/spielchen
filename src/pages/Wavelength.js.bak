@@ -1,45 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import './Wavelength.css';
-import { LanguageContext } from './LanguageContext';
-
-const DEFAULT_PAIRS = [
-  { top: "Logisch", bottom: "Unlogisch" },
-  { top: "Liebe ich", bottom: "Hasse ich" },
-  { top: "Großstadt", bottom: "Dorf" },
-  { top: "Jederzeit", bottom: "Nie im Leben" },
-  { top: "Bestes Jahr in der Geschichte", bottom: "Schlimmstes Jahr in der Geschichte" },
-  { top: "Geht klar", bottom: "Geht gar nicht" },
-  { top: "Traum", bottom: "Albtraum" },
-  { top: "Nützlich in einer Apokalypse", bottom: "Nutzlos in einer Apokalypse" },
-  { top: "Langweilig", bottom: "Spannend" },
-  { top: "Ganz klar Betrug", bottom: "Auf keinen Fall Betrug" },
-  { top: "Toxisch", bottom: "Gesund" },
-  { top: "Red Flag", bottom: "Green Flag" },
-  { top: "Guter Treffpunkt", bottom: "Schlechter Treffpunkt" },
-  { top: "Bester Tag des Jahres", bottom: "Schlimmster Tag des Jahres" },
-  { top: "Guter Urlaubsort", bottom: "Bleibe lieber zuhause" },
-  { top: "Boomer", bottom: "Millennial" },
-  { top: "Nützlicher Körperteil", bottom: "Nutzloser Körperteil" },
-  { top: "Wichtig in der Geschichte", bottom: "Unwichtig in der Geschichte" },
-  { top: "Hochwertig", bottom: "Schlechte Qualität" },
-  { top: "Brauchen", bottom: "Mögen" },
-  { top: "Wunderschönes Wort", bottom: "Hässliches Wort" },
-  { top: "Gefährlich", bottom: "Ungefährlich" },
-  { top: "Einfach zu töten", bottom: "Schwer zu töten" },
-  { top: "Überschätzter Buchstabe", bottom: "Unterschätzter Buchstabe" },
-  { top: "Typisch deutsch", bottom: "Muss chinesisch sein" },
-  { top: "Oft gemacht", bottom: "Selten gemacht" },
-  { top: "Hübscher Mann", bottom: "Hässlicher Mann" },
-  { top: "Bester Emoji", bottom: "Nutzloser Emoji" },
-  { top: "Nützlich für dich", bottom: "Nützlich für die Gesellschaft" },
-  { top: "Riecht super", bottom: "Uh, eklig" },
-  { top: "Katzenname", bottom: "Hundename" },
-  { top: "Kalt", bottom: "Heiß" }
-];
-
-const savePairs = (pairs) => {
-  localStorage.setItem('wavelengthPairs', JSON.stringify(pairs));
-};
+import { LanguageProvider } from "../context/LanguageContext";
 
 const getRandomIndex = (length, exclude) => {
   if (length <= 1) return 0;
@@ -53,11 +14,8 @@ const getRandomIndex = (length, exclude) => {
 const Wavelength = () => {
   const { translations } = useContext(LanguageContext);
 
-  const [pairs, setPairs] = useState(() => {
-    const stored = localStorage.getItem('wavelengthPairs');
-    return stored ? JSON.parse(stored) : DEFAULT_PAIRS;
-  });
-
+  // Siempre usamos los pares del contexto (según idioma)
+  const [pairs, setPairs] = useState(translations.wavelengthPairs);
   const [phase, setPhase] = useState('config');
   const [topWord, setTopWord] = useState('');
   const [bottomWord, setBottomWord] = useState('');
@@ -68,12 +26,16 @@ const Wavelength = () => {
   const [lastIndex, setLastIndex] = useState(null);
   const [positionStats, setPositionStats] = useState(Array(9).fill(0));
 
+  // Si cambia el idioma, refrescamos los pares
   useEffect(() => {
-    savePairs(pairs);
-  }, [pairs]);
+    setPairs(translations.wavelengthPairs);
+    setPhase('config'); // opcional: volver a la config al cambiar idioma
+    setLastIndex(null);
+    setSelectedPos(null);
+  }, [translations]);
 
   const startGame = () => {
-    if (pairs.length === 0) return;
+    if (!pairs || pairs.length === 0) return;
     const index = getRandomIndex(pairs.length, lastIndex);
     const pair = pairs[index];
     setTopWord(pair.top);
@@ -104,8 +66,8 @@ const Wavelength = () => {
   };
 
   const resetPairs = () => {
-    localStorage.removeItem('wavelengthPairs');
-    setPairs(DEFAULT_PAIRS);
+    // Restablece a los pares del idioma actual
+    setPairs(translations.wavelengthPairs);
     setLastIndex(null);
     setPositionStats(Array(9).fill(0));
   };
@@ -160,12 +122,14 @@ const Wavelength = () => {
       </div>
       <h2>{bottomWord}</h2>
 
-      {phase === 'show' && <button onClick={() => setPhase('guess')}>{translations.continue}</button>}
+      {phase === 'show' && (
+        <button onClick={() => setPhase('guess')}>{translations.continue}</button>
+      )}
 
       {phase === 'result' && (
         <>
           <button className="btn-primary" onClick={nextRound}>{translations.newRound}</button>
-          <button onClick={() => window.location.href = '/'}>{translations.home}</button>
+          <button onClick={() => (window.location.href = '/')}>{translations.home}</button>
         </>
       )}
     </div>

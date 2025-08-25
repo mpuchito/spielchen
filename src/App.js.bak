@@ -1,43 +1,27 @@
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { useContext } from 'react';
-import { LanguageContext } from './LanguageContext';
-import LanguageSwitcher from './LanguageSwitcher';
-import Blanco from './Blanco';
-import Wavelength from './Wavelength';
-import Vergiftet from './Vergiftet';
-import './App.css';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import HomeLayout from "./layouts/HomeLayout";
+import GameLayout from "./layouts/GameLayout";
+import Home from "./pages/Home";
+import Blanco from "./pages/Blanco";
+import Wavelength from "./pages/Wavelength";
+import Vergiftet from "./pages/Vergiftet";
 
-function App() {
-  const { translations } = useContext(LanguageContext);
-
+export default function App() {
   return (
-    <Router>
-      <div className="App">
-        <header className="app-header">
-          <h1>Spielchen 🎲</h1>
-          <LanguageSwitcher />
-        </header>
+    <BrowserRouter>
+      <Routes>
+        {/* Layout con menú solo para la Home */}
+        <Route element={<HomeLayout />}>
+          <Route path="/" element={<Home />} />
+        </Route>
 
-        <nav className="menu-grid">
-          <Link to="/blanco">
-            <button className="menu-btn">Blanco</button>
-          </Link>
-          <Link to="/wavelength">
-            <button className="menu-btn">Wavelength</button>
-          </Link>
-          <Link to="/vergiftet">
-            <button className="menu-btn">Vergiftet</button>
-          </Link>
-        </nav>
-
-        <Routes>
+        {/* Layout de juego a pantalla completa */}
+        <Route element={<GameLayout />}>
           <Route path="/blanco" element={<Blanco />} />
           <Route path="/wavelength" element={<Wavelength />} />
           <Route path="/vergiftet" element={<Vergiftet />} />
-        </Routes>
-      </div>
-    </Router>
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
-
-export default App;

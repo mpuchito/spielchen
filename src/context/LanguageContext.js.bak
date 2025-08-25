@@ -1,0 +1,74 @@
+import React, { createContext, useState, useContext, useMemo } from "react";
+
+export const LanguageContext = createContext();
+
+const translationsData = {
+  de: { /* --- tus keys --- */ 
+    menu:{ blanco:"Blanco", wavelength:"Wavelength", vergiftet:"Vergiftet" },
+    selectP1:"Spieler 1 wählen", selectP2:"Spieler 2 wählen", youLost:"Du hast verloren!",
+    newGame:"Neues Spiel", home:"Startseite", startGame:"Spiel starten",
+    showPoisoned:"Vergiftete Felder zeigen", poisonShown:"Vergiftete Felder",
+    configureGame:"Spiel konfigurieren", numberOfPlayers:"Anzahl der Spieler:",
+    enterWord:"Wort:", enterWordAlert:"Bitte gib ein Wort ein, um zu spielen.",
+    play:"PLAY", player:"Spieler", showWord:"Wort anzeigen", blank:"Blanco",
+    nextPlayer:"Nächster Spieler", gameBegins:"Das Spiel beginnt!",
+    revealSecretWord:"Geheimwort anzeigen", newRound:"Neue Runde",
+    secretWordWas:"Das Geheimwort war:", close:"Schließen",
+    wavelength_config:"Wortpaare konfigurieren",
+    topWordPlaceholder:"Wort oben", bottomWordPlaceholder:"Wort unten",
+    addPair:"Paar hinzufügen", clearPairs:"Alle Paare löschen", continue:"Weiter",
+    wavelengthPairs:[{ top: "Logisch", bottom: "Unlogisch" }, { top: "Liebe ich", bottom: "Hasse ich" }, { top: "Großstadt", bottom: "Dorf" }, { top: "Jederzeit", bottom: "Nie im Leben" }, { top: "Bestes Jahr in der Geschichte", bottom: "Schlimmstes Jahr in der Geschichte" }, { top: "Geht klar", bottom: "Geht gar nicht" }, { top: "Traum", bottom: "Albtraum" }, { top: "Nützlich in einer Apokalypse", bottom: "Nutzlos in einer Apokalypse" }, { top: "Langweilig", bottom: "Spannend" }, { top: "Ganz klar Betrug", bottom: "Auf keinen Fall Betrug" }, { top: "Toxisch", bottom: "Gesund" }, { top: "Red Flag", bottom: "Green Flag" }, { top: "Guter Treffpunkt", bottom: "Schlechter Treffpunkt" }, { top: "Bester Tag des Jahres", bottom: "Schlimmster Tag des Jahres" }, { top: "Guter Urlaubsort", bottom: "Bleibe lieber zuhause" }, { top: "Boomer", bottom: "Millennial" }, { top: "Nützlicher Körperteil", bottom: "Nutzloser Körperteil" }, { top: "Wichtig in der Geschichte", bottom: "Unwichtig in der Geschichte" }, { top: "Hochwertig", bottom: "Schlechte Qualität" }, { top: "Brauchen", bottom: "Mögen" }, { top: "Wunderschönes Wort", bottom: "Hässliches Wort" }, { top: "Gefährlich", bottom: "Ungefährlich" }, { top: "Einfach zu töten", bottom: "Schwer zu töten" }, { top: "Überschätzter Buchstabe", bottom: "Unterschätzter Buchstabe" }, { top: "Typisch deutsch", bottom: "Muss chinesisch sein" }, { top: "Oft gemacht", bottom: "Selten gemacht" }, { top: "Hübscher Mann", bottom: "Hässlicher Mann" }, { top: "Bester Emoji", bottom: "Nutzloser Emoji" }, { top: "Nützlich für dich", bottom: "Nützlich für die Gesellschaft" }, { top: "Riecht super", bottom: "Uh, eklig" }, { top: "Katzenname", bottom: "Hundename" }, { top: "Kalt", bottom: "Heiß" }, { top: "Gay", bottom: "Hetero" }]
+  },
+  en: {
+    menu:{ blanco:"Blanco", wavelength:"Wavelength", vergiftet:"Vergiftet" },
+    selectP1:"Select Player 1", selectP2:"Select Player 2", youLost:"You lost!",
+    newGame:"New Game", home:"Home", startGame:"Start Game",
+    showPoisoned:"Show poisoned cells", poisonShown:"Poisoned cells",
+    configureGame:"Configure game", numberOfPlayers:"Number of players:",
+    enterWord:"Word:", enterWordAlert:"Please enter a word to play.",
+    play:"PLAY", player:"Player", showWord:"Show word", blank:"Blanco",
+    nextPlayer:"Next player", gameBegins:"The game begins!",
+    revealSecretWord:"Reveal secret word", newRound:"New round",
+    secretWordWas:"The secret word was:", close:"Close",
+    wavelength_config:"Configure word pairs",
+    topWordPlaceholder:"Top word", bottomWordPlaceholder:"Bottom word",
+    addPair:"Add pair", clearPairs:"Delete all pairs", continue:"Continue",
+    wavelengthPairs:[{ top: "Logical", bottom: "Illogical" }, { top: "Love it", bottom: "Hate it" }, { top: "Big city", bottom: "Village" }, { top: "Always", bottom: "Never" }, { top: "Best year ever", bottom: "Worst year ever" }, { top: "Fair enough", bottom: "No way" }, { top: "Dream", bottom: "Nightmare" }, { top: "Useful in apocalypse", bottom: "Useless in apocalypse" }, { top: "Boring", bottom: "Exciting" }, { top: "Definitely cheating", bottom: "Definitely not cheating" }, { top: "Toxic", bottom: "Healthy" }, { top: "Red flag", bottom: "Green flag" }, { top: "Good meeting spot", bottom: "Bad meeting spot" }, { top: "Best day of the year", bottom: "Worst day of the year" }, { top: "Good vacation spot", bottom: "I'd rather stay home" }, { top: "Boomer", bottom: "Millennial" }, { top: "Useful body part", bottom: "Useless body part" }, { top: "Important in history", bottom: "Unimportant in history" }, { top: "High quality", bottom: "Poor quality" }, { top: "Need", bottom: "Want" }, { top: "Beautiful word", bottom: "Ugly word" }, { top: "Dangerous", bottom: "Harmless" }, { top: "Easy to kill", bottom: "Hard to kill" }, { top: "Overrated letter", bottom: "Underrated letter" }, { top: "Typically German", bottom: "Must be Chinese" }, { top: "Common", bottom: "Rare" }, { top: "Handsome man", bottom: "Ugly man" }, { top: "Best emoji", bottom: "Useless emoji" }, { top: "Useful for you", bottom: "Useful for society" }, { top: "Smells great", bottom: "Gross smell" }, { top: "Cat name", bottom: "Dog name" }, { top: "Cold", bottom: "Hot" }, { top: "Gay", bottom: "Hetero" } ]
+  },
+  es: {
+    menu:{ blanco:"Blanco", wavelength:"Wavelength", vergiftet:"Envenenado" },
+    selectP1:"Selecciona al jugador 1", selectP2:"Selecciona al jugador 2", youLost:"¡Has perdido!",
+    newGame:"Nuevo juego", home:"Inicio", startGame:"Comenzar juego",
+    showPoisoned:"Mostrar celdas envenenadas", poisonShown:"Celdas envenenadas",
+    configureGame:"Configurar juego", numberOfPlayers:"Número de jugadores:",
+    enterWord:"Palabra:", enterWordAlert:"Por favor, introduce una palabra para jugar.",
+    play:"JUGAR", player:"Jugador", showWord:"Mostrar palabra", blank:"Blanco",
+    nextPlayer:"Siguiente jugador", gameBegins:"¡Empieza el juego!",
+    revealSecretWord:"Mostrar palabra secreta", newRound:"Nueva ronda",
+    secretWordWas:"La palabra secreta era:", close:"Cerrar",
+    wavelength_config:"Configurar parejas de palabras",
+    topWordPlaceholder:"Palabra arriba", bottomWordPlaceholder:"Palabra abajo",
+    addPair:"Añadir pareja", clearPairs:"Borrar todas las parejas", continue:"Continuar",
+    wavelengthPairs:[{ top: "Lógico", bottom: "Ilógico" }, { top: "Me encanta", bottom: "Lo odio" }, { top: "Gran ciudad", bottom: "Pueblo" }, { top: "Siempre", bottom: "Nunca" }, { top: "Mejor año de mi vida", bottom: "Peor año de mi vida" }, { top: "Tiene sentido", bottom: "Ni de coña" }, { top: "Sueño", bottom: "Pesadilla" }, { top: "Útil en un apocalipsis", bottom: "Inútil en un apocalipsis" }, { top: "Aburrido", bottom: "Emocionante" }, { top: "Definitivamente haciendo trampa", bottom: "Definitivamente no es trampa" }, { top: "Tóxico", bottom: "Saludable" }, { top: "Red flag", bottom: "Green flag" }, { top: "Buen sitio para quedar", bottom: "Mal sitio para quedar" }, { top: "Mejor día del año", bottom: "Peor día del año" }, { top: "Buen sitio de vacaciones", bottom: "Prefiero quedarme en casa" }, { top: "Boomer", bottom: "Millennial" }, { top: "Parte del cuerpo útil", bottom: "Parte del cuerpo inútil" }, { top: "Importante en la historia", bottom: "Sin importancia en la historia" }, { top: "De alta calidad", bottom: "De mala calidad" }, { top: "Necesidad", bottom: "Deseo" }, { top: "Palabra bonita", bottom: "Palabra fea" }, { top: "Peligroso", bottom: "Inofensivo" }, { top: "Fácil de matar", bottom: "Difícil de matar" }, { top: "Letra sobrevalorada", bottom: "Letra infravalorada" }, { top: "Típicamente alemán", bottom: "Debe ser chino" }, { top: "Común", bottom: "Raro" }, { top: "Hombre guapo", bottom: "Hombre feo" }, { top: "Mejor emoji", bottom: "Emoji inútil" }, { top: "Útil para ti", bottom: "Útil para la sociedad" }, { top: "Huele genial", bottom: "Huele fatal" }, { top: "Nombre de gato", bottom: "Nombre de perro" }, { top: "Frío", bottom: "Caliente" }, { top: "Gay", bottom: "Hetero" },{ top:"Gay", bottom:"Hetero" }]
+  }
+};
+
+export function LanguageProvider({ children }) {
+  const [language, setLanguage] = useState("es");
+
+  const toggleLanguage = () =>
+    setLanguage(prev => (prev === "es" ? "en" : prev === "en" ? "de" : "es"));
+
+  const translations = useMemo(() => translationsData[language], [language]);
+
+  const value = useMemo(
+    () => ({ language, setLanguage, toggleLanguage, translations }),
+    [language, translations]
+  );
+
+  return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
+}
+
+export function useLanguage() {
+  return useContext(LanguageContext);
+}

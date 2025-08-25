@@ -1,0 +1,35 @@
+import { Outlet, Link } from "react-router-dom";
+import { useLanguage } from "../context/LanguageContext";
+import LanguageSwitcher from "../components/LanguageSwitcher";
+import "./HomeLayout.css";
+
+export default function HomeLayout() {
+  const { lang } = useLanguage();
+
+  return (
+    <div className="home-layout">
+      <header className="app-header">
+        <h1 className="main-title">Spielchen 🎲</h1>
+        <LanguageSwitcher />
+      </header>
+
+      <nav className="menu-grid">
+        <Link to="/blanco">
+          <button className="menu-btn">
+            {lang === "es" ? "Blanco" : "Blank"}
+          </button>
+        </Link>
+        <Link to="/wavelength">
+          <button className="menu-btn">Wavelength</button>
+        </Link>
+        <Link to="/vergiftet">
+          <button className="menu-btn">
+            {lang === "es" ? "Envenenado" : "Poisoned"}
+          </button>
+        </Link>
+      </nav>
+
+      <Outlet />
+    </div>
+  );
+}

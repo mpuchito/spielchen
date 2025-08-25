@@ -1,45 +1,28 @@
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { useContext } from 'react';
-import { LanguageContext } from './LanguageContext';
-import LanguageSwitcher from './LanguageSwitcher';
-import Blanco from './Blanco';
-import Wavelength from './Wavelength';
-import Vergiftet from './Vergiftet';
-import './App.css';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { LanguageProvider } from "./context/LanguageContext";
+import HomeLayout from "./layouts/HomeLayout";
+import GameLayout from "./layouts/GameLayout";
+import Home from "./pages/Home";
+import Blanco from "./pages/Blanco";
+import Wavelength from "./pages/Wavelength";
+import Vergiftet from "./pages/Vergiftet";
 
-function App() {
-  const { translations } = useContext(LanguageContext);
-
+export default function App() {
   return (
-    <Router>
-      <div className="App">
-        <header className="app-header">
-          <div className="language-corner">
-            <LanguageSwitcher />
-          </div>
-          <h1 className="main-title">Spielchen 🎲</h1>
-        </header>
-
-        <nav className="menu-grid">
-          <Link to="/blanco">
-            <button className="menu-btn">Blanco</button>
-          </Link>
-          <Link to="/wavelength">
-            <button className="menu-btn">Wavelength</button>
-          </Link>
-          <Link to="/vergiftet">
-            <button className="menu-btn">Vergiftet</button>
-          </Link>
-        </nav>
-
+    <LanguageProvider>
+      <BrowserRouter>
         <Routes>
-          <Route path="/blanco" element={<Blanco />} />
-          <Route path="/wavelength" element={<Wavelength />} />
-          <Route path="/vergiftet" element={<Vergiftet />} />
+          <Route element={<HomeLayout />}>
+            <Route path="/" element={<Home />} />
+          </Route>
+
+          <Route element={<GameLayout />}>
+            <Route path="/blanco" element={<Blanco />} />
+            <Route path="/wavelength" element={<Wavelength />} />
+            <Route path="/vergiftet" element={<Vergiftet />} />
+          </Route>
         </Routes>
-      </div>
-    </Router>
+      </BrowserRouter>
+    </LanguageProvider>
   );
 }
-
-export default App;

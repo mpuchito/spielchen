@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import './Vergiftet.css';
-import { LanguageContext } from './LanguageContext';
+import { LanguageProvider } from "../context/LanguageContext";
 
 const colors = ['blue', 'red', 'yellow', 'green', 'orange', 'violet'];
 

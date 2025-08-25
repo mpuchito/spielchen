@@ -1,7 +1,7 @@
 // LanguageSwitcher.js
 import React, { useContext } from 'react';
 import './LanguageSwitcher.css';
-import { LanguageContext } from './LanguageContext';
+import { LanguageProvider } from "../context/LanguageContext";
 
 const LanguageSwitcher = () => {
   const { language, setLanguage } = useContext(LanguageContext);

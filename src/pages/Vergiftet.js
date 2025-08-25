@@ -1,0 +1,172 @@
+import React, { useState, useEffect, useContext } from 'react';
+import './Vergiftet.css';
+import { useLanguage } from "../context/LanguageContext";
+
+const colors = ['blue', 'red', 'yellow', 'green', 'orange', 'violet'];
+
+const generateGrid = (count) => {
+  return Array.from({ length: count }, () => ({
+    color: colors[Math.floor(Math.random() * colors.length)],
+    selectedBy: null,
+    visible: true,
+    showMarker: true,
+  }));
+};
+
+const Vergiftet = () => {
+  const { translations } = useLanguage();
+
+  const rows = 6;
+  const cols = 6;
+
+  const [grid, setGrid] = useState([]);
+  const [phase, setPhase] = useState('selectP1');
+  const [poisonedIndexes, setPoisonedIndexes] = useState([]);
+  const [popup, setPopup] = useState('');
+  const [lastMoveIndex, setLastMoveIndex] = useState(null);
+
+  useEffect(() => {
+    const totalCells = rows * cols;
+    setGrid(generateGrid(totalCells));
+    setPopup(translations.selectP1);
+  }, [translations]);
+
+  useEffect(() => {
+    if (phase === 'selectP1') {
+      setPopup(translations.selectP1);
+    } else if (phase === 'selectP2') {
+      setPopup(translations.selectP2);
+    } else if (phase === 'summary') {
+      setPopup(translations.poisonShown);
+    } else if (phase === 'lost') {
+      setPopup(translations.youLost);
+    }
+  }, [translations, phase]);
+
+  const handleCellClick = (index) => {
+    if (!grid[index].visible || phase === 'lost' || phase === 'summary') return;
+
+    const newGrid = [...grid];
+
+    if (phase === 'selectP1') {
+      newGrid[index].selectedBy = 'p1';
+      newGrid[index].showMarker = true;
+      setGrid(newGrid);
+      setPoisonedIndexes([index]);
+      setPopup(null);
+      setPhase('waitP2');
+    } else if (phase === 'selectP2') {
+      newGrid[index].selectedBy = 'p2';
+      newGrid[index].showMarker = true;
+      setGrid(newGrid);
+      setPoisonedIndexes((prev) => [...prev, index]);
+      setPopup(null);
+      setPhase('waitPlay');
+    } else if (phase === 'playing') {
+      if (poisonedIndexes.includes(index)) {
+        newGrid[index].selectedBy = 'lost';
+        setGrid(newGrid);
+        setPopup(translations.youLost);
+        setPhase('lost');
+      } else {
+        newGrid[index].visible = false;
+        setGrid(newGrid);
+      }
+    }
+  };
+
+  const confirmPlayer2 = () => {
+    const newGrid = [...grid];
+    newGrid.forEach(cell => {
+      if (cell.selectedBy === 'p1') {
+        cell.showMarker = false;
+      }
+    });
+    setGrid(newGrid);
+    setPhase('selectP2');
+    setPopup(translations.selectP2);
+  };
+
+  const confirmStartGame = () => {
+    const newGrid = [...grid];
+    newGrid.forEach(cell => {
+      if (cell.selectedBy === 'p2') {
+        cell.showMarker = false;
+      }
+    });
+    setGrid(newGrid);
+    setPhase('playing');
+    setPopup(null);
+  };
+
+  const restart = () => {
+    const totalCells = rows * cols;
+    setGrid(generateGrid(totalCells));
+    setPoisonedIndexes([]);
+    setPhase('selectP1');
+    setPopup(translations.selectP1);
+    setLastMoveIndex(null);
+  };
+
+  const showSummary = () => {
+    const newGrid = [...grid];
+    poisonedIndexes.forEach((idx) => {
+      newGrid[idx].visible = true;
+      newGrid[idx].selectedBy = 'poisoned';
+    });
+    setGrid(newGrid);
+    setPhase('summary');
+    setPopup(translations.poisonShown);
+  };
+
+  return (
+    <div className="vergiftet-container">
+      {popup && (
+        <div className="popup">
+          <p>{popup}</p>
+          {phase === 'lost' || phase === 'summary' ? (
+            <>
+              <button onClick={restart}>{translations.newGame}</button>
+              <button onClick={() => window.location.href = '/'}>{translations.home}</button>
+            </>
+          ) : null}
+        </div>
+      )}
+
+      {phase === 'waitP2' && (
+        <div className="summary-button">
+          <button onClick={confirmPlayer2}>{translations.startGame}</button>
+        </div>
+      )}
+
+      {phase === 'waitPlay' && (
+        <div className="summary-button">
+          <button onClick={confirmStartGame}>{translations.startGame}</button>
+        </div>
+      )}
+
+      {phase === 'lost' && (
+        <div className="summary-button">
+          <button onClick={showSummary}>{translations.showPoisoned}</button>
+        </div>
+      )}
+
+      <div className="grid">
+        {grid.map((cell, i) => (
+          <div
+            key={i}
+            className={`cell ${cell.color} ${cell.selectedBy} ${!cell.visible ? 'invisible' : ''}`}
+            onClick={() => handleCellClick(i)}
+          >
+            {cell.selectedBy === 'p1' && cell.showMarker !== false && <span className="x blue-x">X</span>}
+            {cell.selectedBy === 'p2' && cell.showMarker !== false && <span className="x red-x">X</span>}
+            {cell.selectedBy === 'lost' && <span className="x black-x">X</span>}
+            {cell.selectedBy === 'poisoned' && <span className="x gray-x">☠</span>}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default Vergiftet;

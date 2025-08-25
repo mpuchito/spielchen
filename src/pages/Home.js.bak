@@ -1,0 +1,7 @@
+export default function Home() {
+  return (
+    <section style={{ padding: 24 }}>
+      <p>Elige un juego para empezar.</p>
+    </section>
+  );
+}
