@@ -34,3 +34,14 @@
     text-align: center;
   }
 }
+.fullscreen-center {
+  width: 100vw; height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.btn-primary {
+  padding: 10px 16px; border-radius: 10px;
+  background: #1666ff; color: #fff; border: none;
+  font-weight: 600; cursor: pointer;
+}
+.btn-primary:hover { filter: brightness(0.95); }
