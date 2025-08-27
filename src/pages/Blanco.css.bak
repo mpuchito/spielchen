@@ -32,9 +32,11 @@
 /* Etiquetas e inputs */
 .label{
   display:block;
-  margin:10px 0 8px;       /* espacio claro entre “Wort:” e input */
-  color:var(--muted);
-  text-align:left;
+  margin:14px 0 8px;
+  font-size:18px;          
+  font-weight:600;         
+  color:var(--text);      
+  text-align:center;       
 }
 .input{
   width:100%;

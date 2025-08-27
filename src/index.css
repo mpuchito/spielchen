@@ -1,36 +1,46 @@
-/* Bloqueo total de scroll + iPhone full screen */
+/* Reset mínimo y bloqueo de scroll global */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
 html, body {
   margin: 0;
-  padding: 0;
   height: 100%;
   overscroll-behavior: none;
   -webkit-text-size-adjust: 100%;
 }
 
-body {
-  position: fixed;       /* fija el documento al viewport */
+body { overflow: hidden; background:#fff; }
+
+/* Fija la app al viewport, sin desplazamiento */
+#root {
+  position: fixed;
   inset: 0;
-  width: 100%;
-  overflow: hidden;      /* sin scroll global */
-  background: #fff;
+  display: flex;
 }
 
-#root, .App {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  min-height: 100vh;     /* fallback */
-  min-height: 100svh;    /* iOS/Android modernos */
-}
-
-/* iOS safe area */
+/* La App rellena ancho/alto reales del iPhone */
 .App {
+  flex: 1;
+  width: 100vw;
+  min-height: 100svh;         /* iOS/Android modernos */
+  height: -webkit-fill-available; /* fallback iOS */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
   padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* Si necesitas scroll interno, úsalo explícito */
+/* Header siempre a 100% de ancho, sin “encogerse” */
+.app-header {
+  width: 100%;
+  box-sizing: border-box;
+  flex: 0 0 auto;
+}
+
+/* Zona que SÍ puede scrollear si hace falta */
 .scroll-area {
   flex: 1 1 auto;
   overflow: auto;

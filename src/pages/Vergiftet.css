@@ -1,131 +1,80 @@
-/* Vergiftet.css */
-
-.vergiftet-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
+/* Contenedor página */
+.vergiftet-container{
+  width:100%;
+  min-height:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  padding:16px;
+  box-sizing:border-box;
+  overflow:hidden;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(6, 50px);
-  grid-template-rows: repeat(10, 50px);
-  gap: 5px;
-  margin-top: 20px;
+/* Tamaño de celda responsive */
+:root{
+  --cell: clamp(36px, 10vw, 56px);
+  --gap: 8px;
 }
 
-.cell {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 22px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s, opacity 0.3s;
+/* Tablero 6x6 sin fijar filas */
+.grid{
+  display:grid;
+  grid-template-columns: repeat(6, var(--cell));
+  grid-auto-rows: var(--cell);      /* <- en vez de grid-template-rows */
+  gap: var(--gap);
+  margin:12px 0 0;
+  place-content:center;
 }
 
-.cell.invisible {
-  visibility: hidden;
+/* Celdas redondas visibles */
+.cell{
+  width: var(--cell);
+  height: var(--cell);
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size: clamp(16px, 4.5vw, 22px);
+  font-weight:700;
+  cursor:pointer;
+  transition: background-color .3s, opacity .3s;
+}
+.cell.invisible{ opacity:0; pointer-events:none; }  /* no tapa clics */
+
+/* Colores */
+.cell.blue{background:#005eff;}
+.cell.red{background:#e60000;}
+.cell.yellow{background:#ffd700;}
+.cell.green{background:#00b300;}
+.cell.orange{background:#ff8000;}
+.cell.violet{background:#8a2be2;}
+
+/* AVISO INLINE (no overlay) */
+.popup{
+  position: static;                 /* <- quita fixed/inset */
+  background:#f5f5f5;
+  border:2px solid #ccc;
+  padding:16px;
+  text-align:center;
+  margin:12px 0 20px;
+  border-radius:12px;
+  box-shadow:0 4px 12px rgba(0,0,0,.1);
 }
 
-.cell.blue {
-  background-color: #005eff; /* kräftigeres Blau */
+/* Botones aviso */
+.popup button{
+  margin:6px;
+  padding:10px 16px;
+  font-size:16px;
+  border:none; border-radius:8px;
+  background:#0077cc; color:#fff; cursor:pointer;
 }
-
-.cell.red {
-  background-color: #e60000; /* kräftigeres Rot */
-}
-
-.cell.yellow {
-  background-color: #ffd700; /* satteres Gelb */
-}
-
-.cell.green {
-  background-color: #00b300; /* sattes Grün */
-}
-
-.cell.orange {
-  background-color: #ff8000; /* kräftiges Orange */
-}
-
-.cell.violet {
-  background-color: #8a2be2; /* satteres Violett */
-}
-
-.popup {
-  background-color: #f5f5f5;
-  border: 2px solid #ccc;
-  padding: 20px;
-  text-align: center;
-  margin-bottom: 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.popup p {
-  margin-bottom: 15px;
-  font-size: 18px;
-  font-weight: 500;
-}
-
-.popup button {
-  margin: 6px;
-  padding: 10px 16px;
-  font-size: 16px;
-  font-weight: 500;
-  border: none;
-  border-radius: 8px;
-  background-color: #0077cc;
-  color: white;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.popup button:hover {
-  background-color: #005fa3;
-}
-
-.summary-button {
-  margin-top: 20px;
-}
-
-.summary-button button {
-  padding: 10px 20px;
-  font-size: 16px;
-  font-weight: 600;
-  background-color: #333;
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-}
-
-.summary-button button:hover {
-  background-color: #111;
-}
+.popup button:hover{ background:#005fa3; }
 
 /* X markers */
-.x {
-  font-size: 22px;
-  font-weight: bold;
-}
-
-.blue-x {
-  color: #0044cc;
-}
-
-.red-x {
-  color: #cc0000;
-}
-
-.black-x {
-  color: #000;
-}
-
-.gray-x {
-  color: #555;
-}
+.x{ font-size: clamp(16px, 4.5vw, 22px); font-weight:700; }
+.blue-x{ color:#0044cc; }
+.red-x{  color:#cc0000; }
+.black-x{color:#000; }
+.gray-x{ color:#555; }
