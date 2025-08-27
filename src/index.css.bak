@@ -1,4 +1,6 @@
-/* Reset mínimo y bloqueo de scroll global */
+/* ---------------------------
+   Reset y layout base
+--------------------------- */
 *,
 *::before,
 *::after { box-sizing: border-box; }
@@ -12,19 +14,17 @@ html, body {
 
 body { overflow: hidden; background:#fff; }
 
-/* Fija la app al viewport, sin desplazamiento */
 #root {
   position: fixed;
   inset: 0;
   display: flex;
 }
 
-/* La App rellena ancho/alto reales del iPhone */
 .App {
   flex: 1;
   width: 100vw;
-  min-height: 100svh;         /* iOS/Android modernos */
-  height: -webkit-fill-available; /* fallback iOS */
+  min-height: 100svh;
+  height: -webkit-fill-available;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -33,16 +33,84 @@ body { overflow: hidden; background:#fff; }
   padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* Header siempre a 100% de ancho, sin “encogerse” */
 .app-header {
   width: 100%;
   box-sizing: border-box;
   flex: 0 0 auto;
 }
 
-/* Zona que SÍ puede scrollear si hace falta */
 .scroll-area {
   flex: 1 1 auto;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
 }
+
+/* ---------------------------
+   Tokens de color y radius
+--------------------------- */
+:root {
+  --bg: #0f172a; 
+  --card: #ffffff;
+  --text: #0b1220;
+  --muted: #6b7280;
+  --primary: #0b5ed7;
+  --radius: 14px;
+  --shadow: 0 10px 30px rgba(2,6,23,.18);
+}
+
+/* ---------------------------
+   Modal reutilizable
+--------------------------- */
+.ui-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(2,6,23,.56);
+  display: grid;
+  place-items: center;
+  z-index: 60;
+}
+
+.ui-modal {
+  width: min(520px,92vw);
+  background: var(--card);
+  color: var(--text);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px 22px;
+}
+
+.ui-modal__title {
+  margin: 0 0 12px;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.ui-field { display: grid; gap: 6px; margin: 10px 0 18px; }
+.ui-label { font-size: .9rem; color: var(--muted); }
+
+.ui-input {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 1rem;
+}
+
+.ui-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+/* ---------------------------
+   Botones globales
+--------------------------- */
+.btn {
+  border: 0;
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn--primary { background: var(--primary); color:#fff; }
+.btn--ghost   { background: transparent; color: var(--text); border:1px solid #e5e7eb; }

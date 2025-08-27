@@ -5,9 +5,27 @@ import TextInputModal from "../components/TextInputModal";
 import { useLanguage } from "../context/LanguageContext";
 import "./QuePrefieres.css";
 
+const flattenPresence = (state) => {
+  const byKey = new Map();
+  for (const [key, metas] of Object.entries(state)) {
+    if (!metas?.length) continue;
+    const m = metas[metas.length - 1];            // última meta por usuario
+    byKey.set(key, { key, ...m });
+  }
+  return [...byKey.values()];
+};
+
 export default function QuePrefieres({ user }) {
-  const { translations } = useLanguage();
-  const t = translations.qp;
+  const { translations } = useLanguage?.() ?? { translations:{ qp:{} } };
+  const t = translations.qp || {
+    createRoom:"Crear sala", inviteTo:"Invitar a {room}", roomLabel:"Sala",
+    leave:"Salir", roomHint:"Crea o acepta una invitación para entrar a una sala.",
+    clear:"Quitar", reveal:"Revelar resultados", hide:"Ocultar resultados",
+    connected:"Conectados", votes:"Votos", inRoom:"En la sala", voted:"votó",
+    notVoted:"sin votar", inviteTitle:"Invitación a sala", inviteMsg:"te invita a la sala",
+    createTitle:"Crear sala", createLabel:"Nombre de la sala", createCta:"Crear",
+    cancel:"Cancelar", joinFirst:"Crea/únete a una sala primero."
+  };
 
   const [room, setRoom] = useState("lobby");
   const [vote, setVote] = useState(null);
@@ -25,16 +43,10 @@ export default function QuePrefieres({ user }) {
 
   // Lobby: presence + invitaciones
   useEffect(() => {
-    const ch = supabase.channel("lobby", {
-      config: { presence: { key: user.id } },
-    });
+    const ch = supabase.channel("lobby", { config: { presence: { key: user.id } } });
 
     ch.on("presence", { event: "sync" }, () => {
-      const state = ch.presenceState();
-      const flat = Object.entries(state).flatMap(([key, arr]) =>
-        arr.map((m) => ({ key, ...m }))
-      );
-      setLobbyPeers(flat);
+      setLobbyPeers(flattenPresence(ch.presenceState()));
     });
 
     ch.on("broadcast", { event: "invite" }, (payload) => {
@@ -68,19 +80,12 @@ export default function QuePrefieres({ user }) {
     setRevealed(false);
     setRoomReady(false);
 
-    const ch = supabase.channel(`room:${roomName}`, {
-      config: { presence: { key: user.id } },
-    });
+    const ch = supabase.channel(`room:${roomName}`, { config: { presence: { key: user.id } } });
 
     ch.on("presence", { event: "sync" }, async () => {
-      const state = ch.presenceState();
-      const flat = Object.entries(state).flatMap(([key, arr]) =>
-        arr.map((m) => ({ key, ...m }))
-      );
-      setRoomPeers(flat);
+      setRoomPeers(flattenPresence(ch.presenceState()));
 
-      // Autocierre solo si ya estabas dentro
-      if (roomReady && flat.length === 0) {
+      if (roomReady && flattenPresence(ch.presenceState()).length === 0) {
         await ch.untrack();
         supabase.removeChannel(ch);
         setRoomCh(null);
@@ -89,7 +94,10 @@ export default function QuePrefieres({ user }) {
         setRevealed(false);
         setRoomReady(false);
         setRoom("lobby");
-        lobbyCh && lobbyCh.track({ name: user.name, where: "lobby" });
+        if (lobbyCh) {
+          await lobbyCh.untrack();
+          await lobbyCh.track({ name: user.name, where: "lobby" });
+        }
       }
     });
 
@@ -98,7 +106,10 @@ export default function QuePrefieres({ user }) {
         await ch.track({ name: user.name, vote: null, where: `room:${roomName}` });
         setRoom(roomName);
         setRoomCh(ch);
-        lobbyCh && lobbyCh.track({ name: user.name, where: `room:${roomName}` });
+        if (lobbyCh) {
+          await lobbyCh.untrack();
+          await lobbyCh.track({ name: user.name, where: `room:${roomName}` });
+        }
         setRoomReady(true);
       }
     });
@@ -133,7 +144,10 @@ export default function QuePrefieres({ user }) {
     setRevealed(false);
     setRoomReady(false);
     setRoom("lobby");
-    lobbyCh && lobbyCh.track({ name: user.name, where: "lobby" });
+    if (lobbyCh) {
+      await lobbyCh.untrack();
+      await lobbyCh.track({ name: user.name, where: "lobby" });
+    }
   };
 
   // Modal invitación
@@ -162,16 +176,14 @@ export default function QuePrefieres({ user }) {
       {/* LOBBY */}
       <div className="qp-card">
         <div className="qp-head">
-          <span>{t.lobby}</span>
+          <span className="badge">{t.connected}: {lobbyPeers.length}</span>
           <button className="qp-btn" onClick={createRoom}>{t.createRoom}</button>
         </div>
 
         <ul className="qp-list">
           {lobbyPeers.map((p) => (
             <li key={p.key} className="qp-li">
-              <span>
-                {p.name} {p.where !== "lobby" && <span className="qp-muted">· {p.where}</span>}
-              </span>
+              <span className="qp-name">{p.name} {p.where !== "lobby" && <span className="qp-muted">· {p.where}</span>}</span>
               {room !== "lobby" && p.key !== user.id && p.where === "lobby" && (
                 <button className="qp-link" onClick={() => invite(p.key)}>
                   {t.inviteTo.replace("{room}", room)}
@@ -234,7 +246,9 @@ export default function QuePrefieres({ user }) {
               <ul className="qp-list">
                 {roomPeers.map((p) => (
                   <li key={p.key} className="qp-li">
-                    {p.name} {p.vote ? (revealed ? `· ${p.vote}` : `· ${t.voted}`) : `· ${t.notVoted}`}
+                    <span className="qp-name">
+                      {p.name} {p.vote ? (revealed ? `· ${p.vote}` : `· ${t.voted}`) : `· ${t.notVoted}`}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -243,7 +257,6 @@ export default function QuePrefieres({ user }) {
         )}
       </div>
 
-      {/* Modal de invitación */}
       <ConfirmModal
         open={inviteOpen}
         title={t.inviteTitle}
@@ -252,7 +265,6 @@ export default function QuePrefieres({ user }) {
         onCancel={declineInvite}
       />
 
-      {/* Modal crear sala */}
       <TextInputModal
         open={createOpen}
         title={t.createTitle}

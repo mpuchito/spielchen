@@ -8,6 +8,7 @@ import Wavelength from "./pages/Wavelength";
 import Vergiftet from "./pages/Vergiftet";
 import QuePrefieres from "./pages/QuePrefieres";
 import { useState } from "react";
+import "./App.css";
 
 function AppInner() {
   const [user, setUser] = useState(() => {

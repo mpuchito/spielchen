@@ -1,0 +1,27 @@
+import { useState } from "react";
+import { useUser } from "../context/UserContext";
+import TextInputModal from "./TextInputModal";
+
+export default function RequireTempName({ children }) {
+  const { user, createTempUser } = useUser();
+  const [open, setOpen] = useState(!user);
+
+  if (!user) {
+    return (
+      <TextInputModal
+        open={open}
+        title="Crear usuario temporal"
+        label="Tu nombre (temporal):"
+        confirmLabel="Aceptar"
+        cancelLabel="Cancelar"
+        onConfirm={(name) => {
+          if (!name?.trim()) return;
+          createTempUser(name);
+          setOpen(false);
+        }}
+        onClose={() => setOpen(true)} // no cerrar hasta crear
+      />
+    );
+  }
+  return children;
+}
