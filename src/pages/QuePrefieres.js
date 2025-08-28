@@ -1,11 +1,12 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { supabase } from "../lib/supabaseClient";
 import ConfirmModal from "../components/ConfirmModal";
 import TextInputModal from "../components/TextInputModal";
 import { useLanguage } from "../context/LanguageContext";
-import { useUser } from "../context/UserContext";   // 馃憟 traemos el contexto
+import { useUser } from "../context/UserContext";
 import "./QuePrefieres.css";
 
+// --- util ---
 const flattenPresence = (state) => {
   const byKey = new Map();
   for (const [key, metas] of Object.entries(state)) {
@@ -16,18 +17,34 @@ const flattenPresence = (state) => {
   return [...byKey.values()];
 };
 
+// --- fallback traducciones seguras ---
+const fallbackT = {
+  createRoom: "Crear sala",
+  inviteTo: "Invitar a {room}",
+  roomLabel: "Sala",
+  leave: "Salir",
+  roomHint: "Crea o acepta una invitación para entrar a una sala.",
+  clear: "Quitar",
+  reveal: "Revelar resultados",
+  hide: "Ocultar resultados",
+  connected: "Conectados",
+  votes: "Votos",
+  inRoom: "En la sala",
+  voted: "votó",
+  notVoted: "sin votar",
+  inviteTitle: "Invitación a sala",
+  inviteMsg: "te invita a la sala",
+  createTitle: "Crear sala",
+  createLabel: "Nombre de la sala",
+  createCta: "Crear",
+  cancel: "Cancelar",
+  joinFirst: "Crea/únete a una sala primero."
+};
+
 export default function QuePrefieres() {
-  const { user } = useUser();                    // 馃憟 ya no prop
-  const { translations } = useLanguage?.() ?? { translations: { qp: {} } };
-  const t = translations.qp || {
-    createRoom: "Crear sala", inviteTo: "Invitar a {room}", roomLabel: "Sala",
-    leave: "Salir", roomHint: "Crea o acepta una invitaci贸n para entrar a una sala.",
-    clear: "Quitar", reveal: "Revelar resultados", hide: "Ocultar resultados",
-    connected: "Conectados", votes: "Votos", inRoom: "En la sala", voted: "vot贸",
-    notVoted: "sin votar", inviteTitle: "Invitaci贸n a sala", inviteMsg: "te invita a la sala",
-    createTitle: "Crear sala", createLabel: "Nombre de la sala", createCta: "Crear",
-    cancel: "Cancelar", joinFirst: "Crea/煤nete a una sala primero."
-  };
+  const { user } = useUser();
+  const langCtx = useLanguage();                // ? hook siempre llamado
+  const t = (langCtx?.translations?.qp) || fallbackT;
 
   const [room, setRoom] = useState("lobby");
   const [vote, setVote] = useState(null);
@@ -42,6 +59,12 @@ export default function QuePrefieres() {
   const [inviteData, setInviteData] = useState(null);
   const [inviteOpen, setInviteOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
+
+  // --- iOS: helper pointer handler ---
+  const onActivate = useCallback((fn) => ({
+    onClick: fn,
+    onPointerDown: (e) => { if (e.pointerType === "touch") fn(e); }
+  }), []);
 
   // Lobby: presence + invitaciones
   useEffect(() => {
@@ -73,7 +96,7 @@ export default function QuePrefieres() {
   const createRoom = () => setCreateOpen(true);
 
   const joinRoom = async (roomName) => {
-    if (!roomName?.trim()) return;
+    if (!roomName?.trim() || !user) return;
 
     if (roomCh) {
       await roomCh.untrack();
@@ -86,9 +109,10 @@ export default function QuePrefieres() {
     const ch = supabase.channel(`room:${roomName}`, { config: { presence: { key: user.id } } });
 
     ch.on("presence", { event: "sync" }, async () => {
-      setRoomPeers(flattenPresence(ch.presenceState()));
+      const peers = flattenPresence(ch.presenceState());
+      setRoomPeers(peers);
 
-      if (roomReady && flattenPresence(ch.presenceState()).length === 0) {
+      if (roomReady && peers.length === 0) {
         await ch.untrack();
         supabase.removeChannel(ch);
         setRoomCh(null);
@@ -120,7 +144,7 @@ export default function QuePrefieres() {
 
   // Invitar
   const invite = (targetKey) => {
-    if (!roomCh) return alert(t.joinFirst);
+    if (!roomCh) return; // ? sin alert bloqueante
     lobbyCh?.send({
       type: "broadcast",
       event: "invite",
@@ -153,13 +177,9 @@ export default function QuePrefieres() {
     }
   };
 
-  // Modales
-  const acceptInvite = () => { if (inviteData?.roomName) joinRoom(inviteData.roomName); setInviteData(null); setInviteOpen(false); };
-  const declineInvite = () => { setInviteData(null); setInviteOpen(false); };
-
   // Resultados
   const { a, b, total } = useMemo(() => {
-    const votes = roomPeers.map((p) => p.vote).filter(Boolean);
+    const votes = roomPeers.map((p) => p.vote).filter((v) => v === "A" || v === "B");
     const a = votes.filter((v) => v === "A").length;
     const b = votes.filter((v) => v === "B").length;
     return { a, b, total: a + b };
@@ -167,7 +187,7 @@ export default function QuePrefieres() {
 
   const pct = (n) => Math.round((n / Math.max(1, total)) * 100);
 
-  if (!user) return null; // por si acaso
+  if (!user) return null;
 
   return (
     <div className="qp-wrap">
@@ -175,15 +195,17 @@ export default function QuePrefieres() {
       <div className="qp-card">
         <div className="qp-head">
           <span className="badge">{t.connected}: {lobbyPeers.length}</span>
-          <button className="qp-btn" onClick={createRoom}>{t.createRoom}</button>
+          <button className="qp-btn" {...onActivate(() => createRoom())}>{t.createRoom}</button>
         </div>
 
         <ul className="qp-list">
           {lobbyPeers.map((p) => (
             <li key={p.key} className="qp-li">
-              <span className="qp-name">{p.name} {p.where !== "lobby" && <span className="qp-muted">路 {p.where}</span>}</span>
+              <span className="qp-name">
+                {p.name} {p.where !== "lobby" && <span className="qp-muted"> · {p.where}</span>}
+              </span>
               {room !== "lobby" && p.key !== user.id && p.where === "lobby" && (
-                <button className="qp-link" onClick={() => invite(p.key)}>
+                <button className="qp-link" {...onActivate(() => invite(p.key))}>
                   {t.inviteTo.replace("{room}", room)}
                 </button>
               )}
@@ -197,7 +219,7 @@ export default function QuePrefieres() {
         <div className="qp-head">
           <span>{t.roomLabel}: {room}</span>
           {room !== "lobby" && (
-            <button className="qp-link qp-ghost" onClick={leaveRoom}>{t.leave}</button>
+            <button className="qp-link qp-ghost" {...onActivate(() => leaveRoom())}>{t.leave}</button>
           )}
         </div>
 
@@ -206,18 +228,18 @@ export default function QuePrefieres() {
         ) : (
           <>
             <div className="qp-choice">
-              <button className={vote === "A" ? "active" : ""} onClick={() => setMyVote("A")}>A</button>
-              <button className={vote === "B" ? "active" : ""} onClick={() => setMyVote("B")}>B</button>
-              <button className="qp-ghost" onClick={clearVote} disabled={vote === null}>{t.clear}</button>
+              <button className={vote === "A" ? "active" : ""} {...onActivate(() => setMyVote("A"))}>A</button>
+              <button className={vote === "B" ? "active" : ""} {...onActivate(() => setMyVote("B"))}>B</button>
+              <button className="qp-ghost" disabled={vote === null} {...onActivate(() => clearVote())}>{t.clear}</button>
             </div>
 
             <div className="qp-subrow">
               {!revealed ? (
-                <button className="qp-link qp-ghost" onClick={() => setRevealed(true)}>{t.reveal}</button>
+                <button className="qp-link qp-ghost" {...onActivate(() => setRevealed(true))}>{t.reveal}</button>
               ) : (
-                <button className="qp-link qp-ghost" onClick={() => setRevealed(false)}>{t.hide}</button>
+                <button className="qp-link qp-ghost" {...onActivate(() => setRevealed(false))}>{t.hide}</button>
               )}
-              <div className="qp-muted">{t.connected}: {roomPeers.length} 路 {t.votes}: {total}</div>
+              <div className="qp-muted">{t.connected}: {roomPeers.length} · {t.votes}: {total}</div>
             </div>
 
             {revealed && (
@@ -239,7 +261,7 @@ export default function QuePrefieres() {
                 {roomPeers.map((p) => (
                   <li key={p.key} className="qp-li">
                     <span className="qp-name">
-                      {p.name} {p.vote ? (revealed ? `路 ${p.vote}` : `路 ${t.voted}`) : `路 ${t.notVoted}`}
+                      {p.name} {p.vote ? (revealed ? `· ${p.vote}` : `· ${t.voted}`) : `· ${t.notVoted}`}
                     </span>
                   </li>
                 ))}
@@ -253,8 +275,8 @@ export default function QuePrefieres() {
         open={inviteOpen}
         title={t.inviteTitle}
         message={`${inviteData?.from ?? ""} ${t.inviteMsg} "${inviteData?.roomName ?? ""}".`}
-        onAccept={acceptInvite}
-        onCancel={declineInvite}
+        onAccept={() => { if (inviteData?.roomName) joinRoom(inviteData.roomName); setInviteData(null); setInviteOpen(false); }}
+        onCancel={() => { setInviteData(null); setInviteOpen(false); }}
       />
 
       <TextInputModal

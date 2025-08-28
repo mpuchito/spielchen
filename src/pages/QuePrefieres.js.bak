@@ -3,28 +3,30 @@ import { supabase } from "../lib/supabaseClient";
 import ConfirmModal from "../components/ConfirmModal";
 import TextInputModal from "../components/TextInputModal";
 import { useLanguage } from "../context/LanguageContext";
+import { useUser } from "../context/UserContext";   // 👈 traemos el contexto
 import "./QuePrefieres.css";
 
 const flattenPresence = (state) => {
   const byKey = new Map();
   for (const [key, metas] of Object.entries(state)) {
     if (!metas?.length) continue;
-    const m = metas[metas.length - 1];            // última meta por usuario
+    const m = metas[metas.length - 1];
     byKey.set(key, { key, ...m });
   }
   return [...byKey.values()];
 };
 
-export default function QuePrefieres({ user }) {
-  const { translations } = useLanguage?.() ?? { translations:{ qp:{} } };
+export default function QuePrefieres() {
+  const { user } = useUser();                    // 👈 ya no prop
+  const { translations } = useLanguage?.() ?? { translations: { qp: {} } };
   const t = translations.qp || {
-    createRoom:"Crear sala", inviteTo:"Invitar a {room}", roomLabel:"Sala",
-    leave:"Salir", roomHint:"Crea o acepta una invitación para entrar a una sala.",
-    clear:"Quitar", reveal:"Revelar resultados", hide:"Ocultar resultados",
-    connected:"Conectados", votes:"Votos", inRoom:"En la sala", voted:"votó",
-    notVoted:"sin votar", inviteTitle:"Invitación a sala", inviteMsg:"te invita a la sala",
-    createTitle:"Crear sala", createLabel:"Nombre de la sala", createCta:"Crear",
-    cancel:"Cancelar", joinFirst:"Crea/únete a una sala primero."
+    createRoom: "Crear sala", inviteTo: "Invitar a {room}", roomLabel: "Sala",
+    leave: "Salir", roomHint: "Crea o acepta una invitación para entrar a una sala.",
+    clear: "Quitar", reveal: "Revelar resultados", hide: "Ocultar resultados",
+    connected: "Conectados", votes: "Votos", inRoom: "En la sala", voted: "votó",
+    notVoted: "sin votar", inviteTitle: "Invitación a sala", inviteMsg: "te invita a la sala",
+    createTitle: "Crear sala", createLabel: "Nombre de la sala", createCta: "Crear",
+    cancel: "Cancelar", joinFirst: "Crea/únete a una sala primero."
   };
 
   const [room, setRoom] = useState("lobby");
@@ -37,12 +39,13 @@ export default function QuePrefieres({ user }) {
   const [lobbyPeers, setLobbyPeers] = useState([]);
   const [roomPeers, setRoomPeers] = useState([]);
 
-  const [inviteData, setInviteData] = useState(null); // { roomName, from }
+  const [inviteData, setInviteData] = useState(null);
   const [inviteOpen, setInviteOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
 
   // Lobby: presence + invitaciones
   useEffect(() => {
+    if (!user) return;
     const ch = supabase.channel("lobby", { config: { presence: { key: user.id } } });
 
     ch.on("presence", { event: "sync" }, () => {
@@ -64,7 +67,7 @@ export default function QuePrefieres({ user }) {
     });
 
     return () => supabase.removeChannel(ch);
-  }, [user.id, user.name]);
+  }, [user]);
 
   // Crear / entrar sala
   const createRoom = () => setCreateOpen(true);
@@ -115,7 +118,7 @@ export default function QuePrefieres({ user }) {
     });
   };
 
-  // Invitar desde lobby a mi sala
+  // Invitar
   const invite = (targetKey) => {
     if (!roomCh) return alert(t.joinFirst);
     lobbyCh?.send({
@@ -132,7 +135,7 @@ export default function QuePrefieres({ user }) {
   };
   const clearVote = async () => setMyVote(null);
 
-  // Salir a lobby
+  // Salir
   const leaveRoom = async () => {
     if (roomCh) {
       await roomCh.untrack();
@@ -150,16 +153,9 @@ export default function QuePrefieres({ user }) {
     }
   };
 
-  // Modal invitación
-  const acceptInvite = () => {
-    if (inviteData?.roomName) joinRoom(inviteData.roomName);
-    setInviteData(null);
-    setInviteOpen(false);
-  };
-  const declineInvite = () => {
-    setInviteData(null);
-    setInviteOpen(false);
-  };
+  // Modales
+  const acceptInvite = () => { if (inviteData?.roomName) joinRoom(inviteData.roomName); setInviteData(null); setInviteOpen(false); };
+  const declineInvite = () => { setInviteData(null); setInviteOpen(false); };
 
   // Resultados
   const { a, b, total } = useMemo(() => {
@@ -171,9 +167,11 @@ export default function QuePrefieres({ user }) {
 
   const pct = (n) => Math.round((n / Math.max(1, total)) * 100);
 
+  if (!user) return null; // por si acaso
+
   return (
     <div className="qp-wrap">
-      {/* LOBBY */}
+      {/* Lobby */}
       <div className="qp-card">
         <div className="qp-head">
           <span className="badge">{t.connected}: {lobbyPeers.length}</span>
@@ -194,7 +192,7 @@ export default function QuePrefieres({ user }) {
         </ul>
       </div>
 
-      {/* SALA */}
+      {/* Sala */}
       <div className="qp-card">
         <div className="qp-head">
           <span>{t.roomLabel}: {room}</span>
@@ -215,17 +213,11 @@ export default function QuePrefieres({ user }) {
 
             <div className="qp-subrow">
               {!revealed ? (
-                <button className="qp-link qp-ghost" onClick={() => setRevealed(true)}>
-                  {t.reveal}
-                </button>
+                <button className="qp-link qp-ghost" onClick={() => setRevealed(true)}>{t.reveal}</button>
               ) : (
-                <button className="qp-link qp-ghost" onClick={() => setRevealed(false)}>
-                  {t.hide}
-                </button>
+                <button className="qp-link qp-ghost" onClick={() => setRevealed(false)}>{t.hide}</button>
               )}
-              <div className="qp-muted">
-                {t.connected}: {roomPeers.length} · {t.votes}: {total}
-              </div>
+              <div className="qp-muted">{t.connected}: {roomPeers.length} · {t.votes}: {total}</div>
             </div>
 
             {revealed && (
