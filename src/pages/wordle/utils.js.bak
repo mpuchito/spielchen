@@ -1,0 +1,57 @@
+export function getVisibleUserName({ user, presenceMeta }) {
+if (presenceMeta?.displayName) return presenceMeta.displayName;
+if (user?.displayName) return user.displayName;
+if (user?.username) return user.username;
+if (user?.email) return user.email.split("@")[0];
+return "anon";
+}
+
+
+export function onlyLetters5(str) {
+return /^[a-zA-ZáéíóúüñÄÖÜäöüß]{5}$/.test(str);
+}
+
+
+export function normalizeWord(str) {
+return str
+.toLowerCase()
+.normalize("NFD")
+.replace(/[\u0300-\u036f]/g, "")
+.replace("ß", "ss");
+}
+
+export function getTempName() {
+  const pick = (v) => (typeof v === "string" && v.trim() ? v.trim() : null);
+
+  // claves más probables usadas por tus pantallas
+  const KEYS = [
+    "tempUserName", "qp_user_name", "qp:name", "displayName",
+    "username", "user_name", "name", "spielchen_username"
+  ];
+
+  // 1) prueba directas
+  for (const k of KEYS) {
+    const v = pick(localStorage.getItem(k)) || pick(sessionStorage.getItem(k));
+    if (v) return v;
+  }
+
+  // 2) objetos JSON comunes
+  const OBJ_KEYS = ["qp_user", "user", "presence", "currentUser"];
+  for (const k of OBJ_KEYS) {
+    try {
+      const raw = localStorage.getItem(k) || sessionStorage.getItem(k);
+      if (!raw) continue;
+      const obj = JSON.parse(raw);
+      const v =
+        pick(obj?.name) ||
+        pick(obj?.displayName) ||
+        pick(obj?.username) ||
+        pick(obj?.user?.name) ||
+        pick(obj?.user?.displayName);
+      if (v) return v;
+    } catch (_) {}
+  }
+
+  return null;
+}
+

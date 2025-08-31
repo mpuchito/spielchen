@@ -21,7 +21,9 @@ const translationsData = {
 	qp: {lobby: "Lobby", createRoom: "Raum erstellen", inviteTo: "In {room} einladen",
 	roomLabel: "Raum", leave: "Verlassen", roomHint: "Erstelle einen Raum oder nimm eine Einladung an.", clear: "Zurücksetzen", reveal: "Ergebnisse anzeigen",
 	hide: "Ergebnisse ausblenden", connected: "Verbunden", votes: "Stimmen", inRoom: "Im Raum", voted: "abgestimmt", notVoted: "nicht abgestimmt", inviteTitle: "Raumeinladung", inviteMsg: "lädt dich in den Raum ein", createTitle: "Raum erstellen", createLabel: "Name des Raums", createCta: "Erstellen", cancel: "Abbrechen", joinFirst: "Zuerst einem Raum beitreten/erstellen."
-	}
+	},
+	user: {createTitle: "Temporären Benutzer erstellen", createLabel: "Gib deinen Namen ein, um zu spielen:", confirm: "Starten", cancel: "Abbrechen"},
+    wordle: {title: "Wordle", resolver: "Wort lösen", crear: "Wort erstellen", jugando: "Wordle spielen", correcto: "Richtig", error: "Keine Versuche mehr", de: "von",del_dia: "am", probar: "Prüfen", siguiente: "Nächstes Wort"}
   },
   en: {
     menu:{ blanco:"Blanco", wavelength:"Wavelength", vergiftet:"Poisoned" },
@@ -41,7 +43,8 @@ const translationsData = {
 	qp: {lobby: "Lobby", createRoom: "Create room", inviteTo: "Invite to {room}", roomLabel: "Room", leave: "Leave", roomHint: "Create or accept an invitation to join a room.", clear: "Clear", reveal: "Reveal results", hide: "Hide results", connected: "Connected", votes: "Votes", inRoom: "In the room", voted: "voted",
 	notVoted: "not voted", inviteTitle: "Room invitation", inviteMsg: "invites you to room", createTitle: "Create room", createLabel: "Room name", createCta: "Create", cancel: "Cancel", joinFirst: "Create/join a room first."},
 	user: {createTitle: "Create temporary user",createLabel: "Enter your name to play:",
-      confirm: "Start",cancel: "Cancel"}
+      confirm: "Start",cancel: "Cancel"},
+	wordle: {title: "Wordle", resolver: "Solve word", crear: "Create word", jugando: "Playing Wordle", correcto: "Correct", error: "No tries left",	de: "by", del_dia: "on", probar: "Check", siguiente: "Next word"}
   },
   es: {
     menu:{ blanco:"Blanco", wavelength:"Wavelength", vergiftet:"Envenenado" },
@@ -61,7 +64,8 @@ const translationsData = {
 	qp: {lobby: "Lobby", createRoom: "Crear sala", inviteTo: "Invitar a {room}", roomLabel: "Sala", leave: "Salir", roomHint: "Crea o acepta una invitación para entrar a una sala.", clear: "Quitar", reveal: "Revelar resultados", hide: "Ocultar resultados", connected: "Conectados", votes: "Votos", inRoom: "En la sala", voted: "votó", notVoted: "sin votar", inviteTitle: "Invitación a sala", inviteMsg: "te invita a la sala", createTitle: "Crear sala", createLabel: "Nombre de la sala",
   createCta: "Crear", cancel: "Cancelar", joinFirst: "Crea/únete a una sala primero."}
   },
-  user: {createTitle: "Crear usuario temporal", createLabel: "Escribe tu nombre para jugar:", confirm: "Empezar",cancel: "Cancelar"}
+  user: {createTitle: "Crear usuario temporal", createLabel: "Escribe tu nombre para jugar:", confirm: "Empezar",cancel: "Cancelar"},
+  wordle: {title: "Wordle", resolver: "Resolver palabra", crear: "Crear palabra", jugando: "Jugando Wordle", correcto: "Correcto", error: "Sin intentos", de: "de",del_dia: "del día", probar: "Probar", siguiente: "Siguiente palabra"}
 };
 
 export function LanguageProvider({ children }) {

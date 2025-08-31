@@ -6,7 +6,10 @@ import Blanco from "./pages/Blanco";
 import Wavelength from "./pages/Wavelength";
 import Vergiftet from "./pages/Vergiftet";
 import QuePrefieres from "./pages/QuePrefieres";
-import RequireTempName from "./components/RequireTempName"; // ⬅️ guard
+import RequireTempName from "./components/RequireTempName";
+import WordleHome from "./pages/wordle/WordleHome";
+import CreateWord from "./pages/wordle/CreateWord";
+import SolveWord from "./pages/wordle/SolveWord";
 import "./App.css";
 
 export default function App() {
@@ -26,6 +29,30 @@ export default function App() {
             element={
               <RequireTempName>
                 <QuePrefieres />
+              </RequireTempName>
+            }
+          />
+          <Route
+            path="/wordle"
+            element={
+              <RequireTempName>
+                <WordleHome />
+              </RequireTempName>
+            }
+          />
+          <Route
+            path="/wordle/crear"
+            element={
+              <RequireTempName>
+                <CreateWord />
+              </RequireTempName>
+            }
+          />
+          <Route
+            path="/wordle/resolver"
+            element={
+              <RequireTempName>
+                <SolveWord />
               </RequireTempName>
             }
           />

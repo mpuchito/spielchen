@@ -1,0 +1,73 @@
+// src/pages/wordle/CreateWord.js
+import React, { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "../../lib/supabaseClient";
+import { useLanguage } from "../../context/LanguageContext";
+import { useUser } from "../../context/UserContext";
+import { getVisibleUserName, onlyLetters5, normalizeWord, getTempName } from "./utils";
+
+export default function CreateWord() {
+  const nav = useNavigate();
+  const { lang, translations } = useLanguage();
+  const { user, presenceMeta } = useUser() || {};
+  const t = translations.wordle || {};
+
+  const [word, setWord] = useState("");
+  const [error, setError] = useState("");
+
+  // opcional: nombre “estimado” para UI, pero NO confiar en él para guardar
+  const displayName = useMemo(() => (
+    getVisibleUserName({ user, presenceMeta }) || getTempName() || "anon"
+  ), [user, presenceMeta]);
+
+  async function handleSave() {
+    setError("");
+
+    const raw = word.trim();
+    if (!onlyLetters5(raw)) {
+      setError("Debe tener exactamente 5 letras");
+      return;
+    }
+
+    const normalized = normalizeWord(raw);
+    const langSafe = lang || "es";
+
+    // 👇 recomputa aquí el nombre definitivo antes de insertar
+    const finalName =
+      getVisibleUserName({ user, presenceMeta }) || getTempName() || "anon";
+
+    const { error: e2 } = await supabase.from("user_words").insert({
+      word_norm: normalized,
+      language: langSafe,
+      created_by_name: finalName,
+    });
+
+    if (e2) {
+      console.error("INSERT user_words:", e2);
+      setError(e2.message || "No se pudo guardar");
+      return;
+    }
+
+    nav("/wordle/resolver");
+  }
+
+  return (
+    <div className="p-4 max-w-sm mx-auto">
+      <h2 className="wordle-title">{t.crear || "Crear palabra"}</h2>
+
+      <input
+        className="wordle-input-full"
+        value={word}
+        onChange={(e) => setWord(e.target.value)}
+        maxLength={5}
+        placeholder="ABCDE"
+      />
+
+      <div className="wordle-error">{error && <span>{error}</span>}</div>
+
+      <button className="wordle-btn primary" onClick={handleSave}>
+        {t.crear || "Crear palabra"}
+      </button>
+    </div>
+  );
+}

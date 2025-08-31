@@ -1,0 +1,36 @@
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { useLanguage } from "../../context/LanguageContext";
+
+
+export default function WordleHome() {
+const nav = useNavigate();
+const { language, setLang, translations } = useLanguage();
+const t = translations.wordle || {
+resolver: "Resolver palabra",
+crear: "Crear palabra",
+idioma: "Idioma",
+};
+
+
+return (
+<div className="p-4 max-w-xl mx-auto">
+<h1 className="text-2xl font-bold mb-4">{t.title}</h1>
+
+<button
+className="btn-primary w-full mb-3"
+onClick={() => nav("/wordle/resolver")}
+>
+{t.resolver}
+</button>
+
+
+<button
+className="btn-secondary w-full"
+onClick={() => nav("/wordle/crear")}
+>
+{t.crear}
+</button>
+</div>
+);
+}

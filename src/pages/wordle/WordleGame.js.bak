@@ -1,0 +1,74 @@
+import React, { useEffect, useRef, useState } from "react";
+import { useLanguage } from "../../context/LanguageContext";
+import "./Wordle.css";
+
+const MAX_TRIES = 6;
+
+function evaluateGuess(guess, answer) { /* igual que antes */ }
+
+function Cell({ letter, state }) { /* igual que antes */ }
+
+export function WordleGame({ answer }) {
+  const { translations } = useLanguage();
+  const t = translations.wordle || { probar:"Probar", correcto:"Correcto", error:"Sin intentos", de:"Era", placeholder:"ABCDE" };
+
+  const [rows, setRows] = useState([]);
+  const [current, setCurrent] = useState("");
+  const [status, setStatus] = useState("playing");
+  const inputRef = useRef(null);
+
+  // reset total al cambiar de palabra
+  useEffect(() => {
+    setRows([]);
+    setCurrent("");
+    setStatus("playing");
+    if (inputRef.current) inputRef.current.focus();
+  }, [answer?.word, answer?.id]);
+
+  const onEnter = () => {
+    if (status !== "playing") return;
+    const guess = current.trim().toLowerCase();
+    if (guess.length !== 5) return;
+
+    const evalRes = evaluateGuess(guess, answer.word);
+    const next = [...rows, { guess, eval: evalRes }];
+    setRows(next);
+    setCurrent("");
+
+    if (guess === answer.word) setStatus("won");
+    else if (next.length >= MAX_TRIES) setStatus("lost");
+  };
+
+  return (
+    <div className="wordle">
+      <div className="wordle-grid">
+        {Array.from({ length: MAX_TRIES }).map((_, r) => (
+          <div key={r} className="wordle-row">
+            {Array.from({ length: 5 }).map((_, c) => {
+              const letter = rows[r]?.guess?.[c] || (r === rows.length ? current[c] : "");
+              const state = rows[r]?.eval?.[c] || null;
+              return <Cell key={c} letter={letter} state={state} />;
+            })}
+          </div>
+        ))}
+      </div>
+
+      {status === "playing" && (
+        <div className="wordle-actions">
+          <input
+            ref={inputRef}
+            className="wordle-input"
+            maxLength={5}
+            value={current.toUpperCase()}
+            onChange={(e) => setCurrent(e.target.value)}
+            placeholder={t.placeholder || "ABCDE"}
+          />
+          <button className="btn-primary" onClick={onEnter}>{t.probar}</button>
+        </div>
+      )}
+
+      {status === "won"  && <div className="wordle-msg ok">{t.correcto}. {t.de} <b>{answer.word.toUpperCase()}</b>.</div>}
+      {status === "lost" && <div className="wordle-msg error">{t.error}. {t.de} <b>{answer.word.toUpperCase()}</b>.</div>}
+    </div>
+  );
+}

@@ -1,0 +1,107 @@
+.wordle { 
+  max-width: 420px; 
+  margin: 16px auto 0; 
+}
+
+.wordle-grid { 
+  display: grid; 
+  grid-template-rows: repeat(6, 1fr); 
+  gap: 8px; 
+  margin-bottom: 16px; 
+}
+
+.wordle-row  { 
+  display: grid; 
+  grid-template-columns: repeat(5, 1fr); 
+  gap: 8px; 
+}
+
+.wordle-cell {
+  width: 64px; height: 64px;
+  display: grid; place-items: center;
+  border: 1px solid #d0d7de; border-radius: 8px;
+  font-weight: 700; font-size: 22px;
+  text-transform: uppercase; letter-spacing: 1px;
+  background: #fff; color: #111;
+}
+.wordle-cell.correct { background: #22c55e; color: #fff; border-color: #22c55e; }
+.wordle-cell.present { background: #facc15; color: #111; border-color: #facc15; }
+.wordle-cell.absent  { background: #d1d5db; color: #111; border-color: #d1d5db; }
+
+.wordle-actions { 
+  display: flex; 
+  gap: 12px; 
+  align-items: center;
+}
+.wordle-actions .btn-primary {
+  flex: 0 0 120px;         /* ancho fijo aprox. */
+  padding: 14px;
+  font-size: 18px;
+}
+
+.wordle-input {
+  flex-grow: 1;           
+  flex-shrink: 1;
+  min-width: 0;           
+  padding: 14px 16px;
+  border: 1px solid #d0d7de; 
+  border-radius: 10px;
+  text-align: center; 
+  text-transform: uppercase; 
+  letter-spacing: 10px; 
+  font-weight: 700; 
+  font-size: 24px; 
+  height: 56px;
+}
+
+.wordle-msg {
+  margin-top: 12px; 
+  padding: 10px 12px; 
+  border-radius: 8px; 
+  border: 1px solid;
+}
+.wordle-msg.ok    { background: #ecfdf5; border-color: #34d399; color: #065f46; }
+.wordle-msg.error { background: #fef2f2; border-color: #fca5a5; color: #7f1d1d; }
+
+/* barra de botones abajo */
+.wordle-bottom-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+.wordle-bottom-actions .btn-primary,
+.wordle-bottom-actions .btn-secondary {
+  flex: 1;
+  padding: 14px 16px;
+  font-size: 18px;
+  border-radius: 10px;
+}
+
+/* Título principal */
+.wordle-title {
+  text-align: center;
+  font-size: 2.4rem;
+  font-weight: 800;
+  margin-bottom: 2.5rem;
+}
+
+/* Botones grandes de la home de Wordle */
+.wordle-btn {
+  display: block;
+  width: 100%;
+  max-width: 280px;
+  margin: 0 auto 1rem auto;
+  padding: 18px 20px;
+  font-size: 20px;
+  font-weight: 600;
+  border-radius: 12px;
+  text-align: center;
+}
+.wordle-btn.primary {
+  background: #2563eb;
+  color: #fff;
+}
+.wordle-btn.secondary {
+  background: #3b82f6;
+  color: #fff;
+}
