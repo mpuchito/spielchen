@@ -41,16 +41,37 @@
 .wordle-cell.present { background: var(--present); color:#111; border-color: var(--present); }
 .wordle-cell.absent  { background: #e5e7eb; color:#111; border-color:#e5e7eb; }
 
-/* TECLADO */
+/* TECLADO iOS-safe */
 .wordle-kbd{
   position: sticky;
   bottom: env(safe-area-inset-bottom);
   padding: 12px;
   padding-bottom: calc(env(safe-area-inset-bottom) + 12px);
-  background: transparent;
 }
 
 .kbd-rows{ display: grid; gap: 10px; }
+.kbd-row{
+  display: flex;
+  gap: 8px;
+}
+.kbd-btn{
+  min-width: 0;            /* evita recortes en iOS */
+  flex: 1 1 0;             /* todas se reparten el ancho */
+  height: 48px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #e5e7eb;
+  color: #111;
+  font-weight: 700;
+  cursor: pointer;
+}
+.kbd-btn.wide{ flex: 2 1 0; }  /* Enter y Borrar doble ancho */
+
+/* colores por estado */
+.kbd-btn.correct{ background: var(--ok); color:#fff; border-color: var(--ok); }
+.kbd-btn.present{ background: var(--present); color:#111; border-color: var(--present); }
+.kbd-btn.absent { background: var(--absent); color:#fff; border-color: var(--absent); }
+
 
 /* cada fila es una rejilla; todas las teclas ocupan la misma fracción */
 .kbd-row{

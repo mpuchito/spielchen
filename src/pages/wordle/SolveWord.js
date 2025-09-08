@@ -15,7 +15,6 @@ export default function SolveWord() {
   const [answer, setAnswer] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // ref del contenedor para calcular las casillas
   const rootRef = useRef(null);
 
   useEffect(() => {
@@ -46,82 +45,100 @@ export default function SolveWord() {
     });
   };
 
-  // calcula tamaño de casilla en función del alto disponible
+  // Layout responsivo con visualViewport (iOS/Android)
   useLayoutEffect(() => {
     const el = rootRef.current;
     if (!el) return;
 
-    function layout() {
-      // alto total real del viewport móvil
-      const vh = Math.max(window.innerHeight, document.documentElement.clientHeight);
-      // restar altura aprox. de header + acciones + márgenes
-      const headerH = 56;
-      const actionsH = 0; // botones están en la barra superior
+    const layout = () => {
+      const vh =
+        window.visualViewport?.height ||
+        Math.max(window.innerHeight, document.documentElement.clientHeight);
+
+      const headerH = 56; // título+botones aprox
       const gaps = 48;
-      const availableH = vh - headerH - actionsH - gaps;
+      const availableH = vh - headerH - gaps;
 
-      // espacio horizontal útil
-      const w = el.clientWidth - 24;
+      const w = el.clientWidth - 24; // padding horizontal
 
-      // tablero 6 filas x 5 columnas
       const byHeight = Math.floor(availableH / 6);
       const byWidth = Math.floor(w / 5);
-      const tile = Math.max(28, Math.min(byHeight, byWidth, 64)); // clamp 28–64px
-
+      const tile = Math.max(28, Math.min(byHeight, byWidth, 64)); // clamp
       el.style.setProperty("--tile", `${tile}px`);
-    }
+    };
 
     layout();
-    window.addEventListener("resize", layout);
-    return () => window.removeEventListener("resize", layout);
+    window.addEventListener("resize", layout, { passive: true });
+    window.visualViewport?.addEventListener("resize", layout, { passive: true });
+    return () => {
+      window.removeEventListener("resize", layout);
+      window.visualViewport?.removeEventListener("resize", layout);
+    };
   }, [answer]);
 
   return (
-    // usar 100dvh/100svh para móviles. inline style para compatibilidad.
     <div
-  ref={rootRef}
-  style={{
-    height: "100dvh",
-    minHeight: "100svh",
-    padding: 12,
-    width: "100%",
-    maxWidth: 480,
-    margin: "0 auto",          // <-- centra TODO
-    display: "flex",
-    flexDirection: "column",
-    overflow: "hidden",
-  }}
->
-      {/* barra superior con título y acciones para no empujar el teclado */}
-      <div className="flex flex-col items-center gap-2 mb-4 text-center">
-	  <h2 className="text-base font-semibold leading-tight">
-		{answer
-		  ? `${t.resolver} ${t.de} ${answer.created_by_name} ${t.del_dia} ${new Date(
-			  answer.created_at
-			).toLocaleDateString()}`
-		  : t.resolver}
-	  </h2>
-	  <div className="flex gap-3">
-		<button className="btn-secondary h-9 px-4" onClick={() => nav("/wordle/crear")}>
-		  {t.crear || "Crear"}
-		</button>
-		<button className="btn-primary h-9 px-4" onClick={nextWord}>
-		  {t.siguiente || "Siguiente"}
-		</button>
-	  </div>
-	  </div>
+      ref={rootRef}
+      style={{
+        height: "100svh",
+        padding: 12,
+        paddingLeft: "max(12px, env(safe-area-inset-left))",
+        paddingRight: "max(12px, env(safe-area-inset-right))",
+        paddingBottom: "max(12px, env(safe-area-inset-bottom))",
+        width: "100%",
+        maxWidth: 480,
+        margin: "0 auto",
+        boxSizing: "border-box",
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
+      }}
+    >
+      {/* Título + botones centrados */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 12,
+          marginBottom: 16,
+          textAlign: "center",
+        }}
+      >
+        <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, lineHeight: 1.2 }}>
+          {answer
+            ? `${t.resolver} ${t.de} ${answer.created_by_name} ${t.del_dia} ${new Date(
+                answer.created_at
+              ).toLocaleDateString()}`
+            : t.resolver}
+        </h2>
+        <div style={{ display: "flex", gap: 12 }}>
+          <button
+            className="btn-secondary"
+            style={{ height: 36, padding: "0 16px" }}
+            onClick={() => nav("/wordle/crear")}
+          >
+            {t.crear || "Crear"}
+          </button>
+          <button
+            className="btn-primary"
+            style={{ height: 36, padding: "0 16px" }}
+            onClick={nextWord}
+          >
+            {t.siguiente || "Siguiente"}
+          </button>
+        </div>
+      </div>
 
-
-      {/* el juego ocupa el resto sin scroll de página */}
-      <div className="flex-1 overflow-hidden">
-        {loading && <p className="text-sm">Cargando…</p>}
-        {!loading && !answer && <p className="text-sm">No hay palabras recientes.</p>}
+      {/* Juego */}
+      <div style={{ flex: 1, overflow: "hidden" }}>
+        {loading && <p style={{ fontSize: 14 }}>Cargando…</p>}
+        {!loading && !answer && <p style={{ fontSize: 14 }}>No hay palabras recientes.</p>}
         {answer && (
           <WordleGame
             key={`${answer.id}-${idx}`}
             answer={answer}
             lang={langSafe}
-            // hace que el teclado quede pegado abajo
             className="wordle-root h-full"
           />
         )}
