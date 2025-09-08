@@ -6,7 +6,7 @@ export default function GameLayout() {
     <div className="game-shell">
       <header className="game-topbar">
         <Link to="/" className="btn back-btn">
-          <span className="icon">←</span> Menú
+          <span className="icon"></span> Menú
         </Link>
         <h1 className="brand">Spielchen 🎲</h1>
         <div className="spacer" />

@@ -1,42 +1,117 @@
-import React, { useEffect, useRef, useState } from "react";
+// WordleGame.jsx (multi-teclado + persistencia + useReducer)
+import React, { useEffect, useMemo, useReducer, useRef } from "react";
 import { useLanguage } from "../../context/LanguageContext";
 import "./Wordle.css";
 
 const MAX_TRIES = 6;
 const COLS = 5;
 
+// ------- diccionario de teclados y validadores por idioma -------
+const KB_LAYOUT = {
+  es: [
+    ["Q","W","E","R","T","Y","U","I","O","P"],
+    ["A","S","D","F","G","H","J","K","L","Ñ"],
+    ["↵","Z","X","C","V","B","N","M","⌫"],
+  ],
+  en: [
+    ["Q","W","E","R","T","Y","U","I","O","P"],
+    ["A","S","D","F","G","H","J","K","L"],
+    ["↵","Z","X","C","V","B","N","M","⌫"],
+  ],
+  de: [
+    ["Q","W","E","R","T","Z","U","I","O","P","Ü"],
+    ["A","S","D","F","G","H","J","K","L","Ö","Ä"],
+    ["↵","Y","X","C","V","B","N","M","ß","⌫"],
+  ],
+};
+const LETTER_RE = {
+  es: /^[A-ZÑ]$/i,
+  en: /^[A-Z]$/i,
+  de: /^[A-ZÄÖÜß]$/i,
+};
+
+// ------- evaluación -------
 function evaluateGuess(guess, answer) {
   const a = answer.split("");
   const g = guess.split("");
   const res = Array(COLS).fill("absent");
   const freq = {};
   for (let i = 0; i < COLS; i++) freq[a[i]] = (freq[a[i]] || 0) + 1;
-  for (let i = 0; i < COLS; i++) if (g[i] === a[i]) { res[i] = "correct"; freq[g[i]]--; }
+  for (let i = 0; i < COLS; i++)
+    if (g[i] === a[i]) { res[i] = "correct"; freq[g[i]]--; }
   for (let i = 0; i < COLS; i++)
     if (res[i] !== "correct" && freq[g[i]] > 0) { res[i] = "present"; freq[g[i]]--; }
   return res;
 }
+const rank = { absent: 0, present: 1, correct: 2 };
 
 function Cell({ letter, state }) {
   return <div className={`wordle-cell ${state || ""}`}>{letter || ""}</div>;
 }
 
-export function WordleGame({ answer }) {
-  const { translations } = useLanguage();
-  const t = translations.wordle || { probar: "Probar", correcto: "Correcto", error: "Sin intentos", de: "Era", placeholder: "ABCDE" };
+// ------- reducer -------
+const initial = { rows: [], current: "", status: "playing" };
+function gameReducer(state, action) {
+  switch (action.type) {
+    case "reset":   return initial;
+    case "type":    return { ...state, current: action.value.slice(0, COLS) };
+    case "back":    return { ...state, current: state.current.slice(0, -1) };
+    case "commit":  return { ...state, rows: [...state.rows, action.row], current: "" };
+    case "status":  return { ...state, status: action.value };
+    case "hydrate": return { ...state, ...action.value };
+    default:        return state;
+  }
+}
 
-  const [rows, setRows] = useState([]);     // [{guess, eval:[...]}]
-  const [current, setCurrent] = useState("");
-  const [status, setStatus] = useState("playing");
+export function WordleGame({ answer, lang = "es", className = "" }) {
+  const { translations } = useLanguage();
+  const t = translations.wordle || {
+    probar: "Probar", correcto: "Correcto", error: "Sin intentos", de: "Era",
+  };
+
+  const [state, dispatch] = useReducer(gameReducer, initial);
+  const { rows, current, status } = state;
   const inputRef = useRef(null);
 
-  // Reinicia tablero cuando cambia la palabra
+  // layout y validador por idioma
+  const layout = KB_LAYOUT[lang] || KB_LAYOUT.es;
+  const isLetter = (k) => (LETTER_RE[lang] || LETTER_RE.es).test(k);
+
+  // clave para persistencia
+  const storeKey = useMemo(
+    () => `wordle:state:${lang}:${answer?.id || "na"}`,
+    [lang, answer?.id]
+  );
+
+  // reset al cambiar palabra + intenta hidratar
   useEffect(() => {
-    setRows([]);
-    setCurrent("");
-    setStatus("playing");
+    dispatch({ type: "reset" });
+    try {
+      const raw = localStorage.getItem(storeKey);
+      if (raw) {
+        const saved = JSON.parse(raw);
+        // solo hidrata si coincide la respuesta
+        if (saved?.answerWord === answer?.word) {
+          dispatch({ type: "hydrate", value: {
+            rows: saved.rows || [],
+            current: saved.current || "",
+            status: saved.status || "playing",
+          }});
+        }
+      }
+    } catch {}
     inputRef.current?.focus();
-  }, [answer?.id, answer?.word]);
+  }, [storeKey, answer?.word]);
+
+  // persiste en cada cambio
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        storeKey,
+        JSON.stringify({ rows, current, status, answerWord: answer?.word })
+      );
+    } catch {}
+  }, [rows, current, status, storeKey, answer?.word]);
 
   const onEnter = () => {
     if (status !== "playing") return;
@@ -44,45 +119,108 @@ export function WordleGame({ answer }) {
     if (guess.length !== COLS) return;
 
     const evalRes = evaluateGuess(guess, answer.word);
-    const next = [...rows, { guess, eval: evalRes }];
-    setRows(next);
-    setCurrent("");
+    const nextLen = rows.length + 1;
+    dispatch({ type: "commit", row: { guess, eval: evalRes } });
 
-    if (guess === answer.word) setStatus("won");
-    else if (next.length >= MAX_TRIES) setStatus("lost");
+    if (guess === answer.word) {
+      dispatch({ type: "status", value: "won" });
+      if (navigator.vibrate) navigator.vibrate([40, 40, 80]);
+    } else if (nextLen >= MAX_TRIES) {
+      dispatch({ type: "status", value: "lost" });
+      if (navigator.vibrate) navigator.vibrate(120);
+    }
   };
 
+  const handleKey = (k) => {
+    if (status !== "playing") return;
+    if (k === "↵") return onEnter();
+    if (k === "⌫") return dispatch({ type: "back" });
+    if (isLetter(k) && current.length < COLS)
+      dispatch({ type: "type", value: current + k.toLowerCase() });
+  };
+
+  // estados por tecla
+  const keyState = useMemo(() => {
+    const map = {};
+    for (const row of rows) {
+      row.eval.forEach((st, i) => {
+        const ch = row.guess[i].toUpperCase();
+        const prev = map[ch];
+        if (!prev || rank[st] > rank[prev]) map[ch] = st;
+      });
+    }
+    return map;
+  }, [rows]);
+
   return (
-    <div className="wordle">
-      {/* REJILLA DE 6 INTENTOS */}
-      <div className="wordle-grid">
+    <div className={`wordle-root ${className}`}>
+      {/* TABLERO */}
+      <section className="wordle-board">
         {Array.from({ length: MAX_TRIES }).map((_, r) => (
           <div key={r} className="wordle-row">
             {Array.from({ length: COLS }).map((_, c) => {
               const letter = rows[r]?.guess?.[c] || (r === rows.length ? (current[c] || "") : "");
               const state  = rows[r]?.eval?.[c] || null;
-              return <Cell key={c} letter={letter} state={state} />;
+              return <Cell key={c} letter={(letter || "").toUpperCase()} state={state} />;
             })}
           </div>
         ))}
+      </section>
+
+      {/* TECLADO + INPUT */}
+      <footer className="wordle-kbd">
+  <input
+    ref={inputRef}
+    className="wordle-hidden-input"
+    maxLength={COLS}
+    value={current}
+    onChange={(e) => {
+      const filtered = e.target.value
+        .split("")
+        .filter((ch) => isLetter(ch))
+        .join("")
+        .slice(0, COLS)
+        .toLowerCase();
+      dispatch({ type: "type", value: filtered });
+    }}
+    onKeyDown={(e) => {
+      if (e.key === "Enter") onEnter();
+      if (e.key === "Backspace") dispatch({ type: "back" });
+    }}
+    inputMode="latin"
+    autoCapitalize="off"
+    autoCorrect="off"
+    aria-hidden="true"
+    tabIndex={-1}
+  />
+
+  <div className="kbd-rows">
+    {layout.map((row, i) => (
+      <div key={i} className="kbd-row">
+        {row.map((k) => {
+          const st = keyState[k] || null;
+          const isWide = k === "↵" || k === "⌫";
+          return (
+            <button
+              key={k}
+              type="button"
+              className={`kbd-btn ${st || ""} ${isWide ? "wide" : ""}`}
+              aria-label={k === "↵" ? "Enter" : k === "⌫" ? "Borrar" : k}
+              onClick={() => {
+                if (k === "↵") return onEnter();
+                if (k === "⌫") return dispatch({ type: "back" });
+                if (isLetter(k) && current.length < COLS)
+                  dispatch({ type: "type", value: current + k.toLowerCase() });
+              }}
+            >
+              {k}
+            </button>
+          );
+        })}
       </div>
-
-      {status === "playing" && (
-        <div className="wordle-actions">
-          <input
-            ref={inputRef}
-            className="wordle-input"
-            maxLength={COLS}
-            value={current.toUpperCase()}
-            onChange={(e) => setCurrent(e.target.value)}
-            placeholder={t.placeholder || "ABCDE"}
-          />
-          <button className="btn-primary" onClick={onEnter}>{t.probar}</button>
-        </div>
-      )}
-
-      {status === "won"  && <div className="wordle-msg ok">{t.correcto}. {t.de} <b>{answer.word.toUpperCase()}</b>.</div>}
-      {status === "lost" && <div className="wordle-msg error">{t.error}. {t.de} <b>{answer.word.toUpperCase()}</b>.</div>}
+    ))}
+  </div>
+      </footer>
     </div>
   );
 }
