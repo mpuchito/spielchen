@@ -11,6 +11,12 @@ html, body {
   overscroll-behavior: none;
   -webkit-text-size-adjust: 100%;
 }
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden; /* evita scroll lateral */
+}
+
 
 body { overflow: hidden; background:#fff; }
 

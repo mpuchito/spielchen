@@ -1,9 +1,9 @@
 :root{
-  --tile: 56px;                 /* fallback */
+  --tile: 56px;
   --gap: 8px;
-  --ok: #22c55e;                /* verde */
-  --present: #facc15;           /* amarillo */
-  --absent: #374151;            /* gris oscuro */
+  --ok: #22c55e;
+  --present: #facc15;
+  --absent: #374151;
   --border: #d0d7de;
 }
 
@@ -41,27 +41,39 @@
 .wordle-cell.present { background: var(--present); color:#111; border-color: var(--present); }
 .wordle-cell.absent  { background: #e5e7eb; color:#111; border-color:#e5e7eb; }
 
-/* TECLADO */
+/* TECLADO iOS/desktop-safe */
 .wordle-kbd{
   position: sticky;
   bottom: env(safe-area-inset-bottom);
   padding: 12px;
+  padding-left: max(12px, env(safe-area-inset-left));
+  padding-right: max(12px, env(safe-area-inset-right));
   padding-bottom: calc(env(safe-area-inset-bottom) + 12px);
-  background: transparent;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.kbd-rows{ display: grid; gap: 10px; }
-
-/* cada fila es una rejilla; todas las teclas ocupan la misma fracción */
-.kbd-row{
+.kbd-rows{
   display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(34px, 1fr);
   gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* anti-clip: compensar subpíxel en Chrome desktop */
+.kbd-row{
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+  flex-wrap: nowrap;
+  width: calc(100% - 1px);   /* <- 1px de colchón */
+  box-sizing: border-box;
+  padding: 0 8px;
 }
 
 .kbd-btn{
-  width: 100%;
+  min-width: 0;
+  flex: 1 1 0.0001px;
   height: 48px;
   border-radius: 8px;
   border: 1px solid #e5e7eb;
@@ -70,11 +82,14 @@
   font-weight: 700;
   cursor: pointer;
 }
+.kbd-btn.wide{ flex: 2 1 0.0001px; }
 
-/* Enter y Borrar ocupan 2 columnas */
-.kbd-btn.wide{ grid-column: span 2; }
+/* desktop: reduce aún más el gap para evitar recorte en anchos raros */
+@media (pointer:fine) and (min-width: 600px){
+  .kbd-row{ gap: 4px; padding: 0 10px; width: calc(100% - 2px); }
+}
 
-/* colores por estado */
+
 .kbd-btn.correct{ background: var(--ok); color:#fff; border-color: var(--ok); }
 .kbd-btn.present{ background: var(--present); color:#111; border-color: var(--present); }
 .kbd-btn.absent { background: var(--absent); color:#fff; border-color: var(--absent); }
@@ -88,17 +103,18 @@
 .btn-primary{ background:#2563eb; color:#fff; padding:10px 16px; border-radius:10px; }
 .btn-secondary{ background:#f3f4f6; color:#111; padding:10px 16px; border-radius:10px; }
 
-/* Títulos / botones de Home (si los usas) */
+/* Títulos / botones de Home */
 .wordle-title{ text-align:center; font-size:2rem; font-weight:800; margin-bottom:1.5rem; }
 .wordle-btn{ display:block; width:100%; max-width:280px; margin:0 auto 1rem; padding:18px 20px; font-size:20px; font-weight:600; border-radius:12px; text-align:center; }
 .wordle-btn.primary{ background:#2563eb; color:#fff; }
 .wordle-btn.secondary{ background:#3b82f6; color:#fff; }
 
-/* Mensajes */
+/* Mensajes opcionales */
 .wordle-msg{ margin-top:12px; padding:10px 12px; border-radius:8px; border:1px solid; }
 .wordle-msg.ok{ background:#ecfdf5; border-color:#34d399; color:#065f46; }
 .wordle-msg.error{ background:#fef2f2; border-color:#fca5a5; color:#7f1d1d; }
 
+/* Dark mode */
 html.dark .wordle-cell { background:#111827; color:#e5e7eb; border-color:#374151; }
 html.dark .kbd-btn { background:#374151; color:#e5e7eb; border-color:#4b5563; }
 html.dark .kbd-btn.absent{ background:#111827; border-color:#111827; color:#9ca3af; }

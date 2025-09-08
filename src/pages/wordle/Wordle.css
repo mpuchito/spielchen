@@ -1,9 +1,9 @@
 :root{
-  --tile: 56px;                 /* fallback */
+  --tile: 56px;
   --gap: 8px;
-  --ok: #22c55e;                /* verde */
-  --present: #facc15;           /* amarillo */
-  --absent: #374151;            /* gris oscuro */
+  --ok: #22c55e;
+  --present: #facc15;
+  --absent: #374151;
   --border: #d0d7de;
 }
 
@@ -41,48 +41,41 @@
 .wordle-cell.present { background: var(--present); color:#111; border-color: var(--present); }
 .wordle-cell.absent  { background: #e5e7eb; color:#111; border-color:#e5e7eb; }
 
-/* TECLADO iOS-safe */
+/* TECLADO iOS/desktop-safe */
 .wordle-kbd{
   position: sticky;
   bottom: env(safe-area-inset-bottom);
   padding: 12px;
+  padding-left: max(12px, env(safe-area-inset-left));
+  padding-right: max(12px, env(safe-area-inset-right));
   padding-bottom: calc(env(safe-area-inset-bottom) + 12px);
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden; /* chrome subpíxel */
 }
 
-.kbd-rows{ display: grid; gap: 10px; }
+:root{ --kbd-gap: clamp(3px, 1.2vw, 8px); } /* gap adaptativo */
+
+.kbd-rows{
+  display: grid;
+  gap: var(--kbd-gap);
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .kbd-row{
   display: flex;
-  gap: 8px;
-}
-.kbd-btn{
-  min-width: 0;            /* evita recortes en iOS */
-  flex: 1 1 0;             /* todas se reparten el ancho */
-  height: 48px;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
-  background: #e5e7eb;
-  color: #111;
-  font-weight: 700;
-  cursor: pointer;
-}
-.kbd-btn.wide{ flex: 2 1 0; }  /* Enter y Borrar doble ancho */
-
-/* colores por estado */
-.kbd-btn.correct{ background: var(--ok); color:#fff; border-color: var(--ok); }
-.kbd-btn.present{ background: var(--present); color:#111; border-color: var(--present); }
-.kbd-btn.absent { background: var(--absent); color:#fff; border-color: var(--absent); }
-
-
-/* cada fila es una rejilla; todas las teclas ocupan la misma fracción */
-.kbd-row{
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(34px, 1fr);
-  gap: 8px;
-}
-
-.kbd-btn{
+  gap: var(--kbd-gap);
+  justify-content: center;
+  flex-wrap: nowrap;
   width: 100%;
+  box-sizing: border-box;
+  padding: 0 10px;              /* colchón lateral suficiente */
+}
+
+.kbd-btn{
+  min-width: 0;
+  flex: 1 1 0.0001px;           /* puede encoger sin cortar letras */
   height: 48px;
   border-radius: 8px;
   border: 1px solid #e5e7eb;
@@ -91,11 +84,9 @@
   font-weight: 700;
   cursor: pointer;
 }
+.kbd-btn.wide{ flex: 2 1 0.0001px; }
 
-/* Enter y Borrar ocupan 2 columnas */
-.kbd-btn.wide{ grid-column: span 2; }
-
-/* colores por estado */
+/* colores */
 .kbd-btn.correct{ background: var(--ok); color:#fff; border-color: var(--ok); }
 .kbd-btn.present{ background: var(--present); color:#111; border-color: var(--present); }
 .kbd-btn.absent { background: var(--absent); color:#fff; border-color: var(--absent); }
@@ -109,17 +100,18 @@
 .btn-primary{ background:#2563eb; color:#fff; padding:10px 16px; border-radius:10px; }
 .btn-secondary{ background:#f3f4f6; color:#111; padding:10px 16px; border-radius:10px; }
 
-/* Títulos / botones de Home (si los usas) */
+/* Títulos / botones de Home */
 .wordle-title{ text-align:center; font-size:2rem; font-weight:800; margin-bottom:1.5rem; }
 .wordle-btn{ display:block; width:100%; max-width:280px; margin:0 auto 1rem; padding:18px 20px; font-size:20px; font-weight:600; border-radius:12px; text-align:center; }
 .wordle-btn.primary{ background:#2563eb; color:#fff; }
 .wordle-btn.secondary{ background:#3b82f6; color:#fff; }
 
-/* Mensajes */
+/* Mensajes opcionales */
 .wordle-msg{ margin-top:12px; padding:10px 12px; border-radius:8px; border:1px solid; }
 .wordle-msg.ok{ background:#ecfdf5; border-color:#34d399; color:#065f46; }
 .wordle-msg.error{ background:#fef2f2; border-color:#fca5a5; color:#7f1d1d; }
 
+/* Dark mode */
 html.dark .wordle-cell { background:#111827; color:#e5e7eb; border-color:#374151; }
 html.dark .kbd-btn { background:#374151; color:#e5e7eb; border-color:#4b5563; }
 html.dark .kbd-btn.absent{ background:#111827; border-color:#111827; color:#9ca3af; }

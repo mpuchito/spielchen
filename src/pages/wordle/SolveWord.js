@@ -16,6 +16,7 @@ export default function SolveWord() {
   const [loading, setLoading] = useState(true);
 
   const rootRef = useRef(null);
+  const headerRef = useRef(null); // << medir cabecera local
 
   useEffect(() => {
     (async () => {
@@ -45,51 +46,41 @@ export default function SolveWord() {
     });
   };
 
-  // Layout responsivo con visualViewport (iOS/Android)
   useLayoutEffect(() => {
   const el = rootRef.current;
   if (!el) return;
 
   const layout = () => {
-    // alto visible real incluso con teclado
     const vh = window.visualViewport?.height
       ?? Math.max(window.innerHeight, document.documentElement.clientHeight);
 
-    // alto ocupado por el teclado propio del juego
-    const kbdEl = el.querySelector(".wordle-kbd");
-    const kbdH = kbdEl ? kbdEl.getBoundingClientRect().height : 0;
+    const topbarH = document.querySelector(".game-topbar")?.getBoundingClientRect().height || 0;
+    const headH   = el.querySelector("[data-wordle-head]")?.getBoundingClientRect().height || 0;
+    const kbdH    = el.querySelector(".wordle-kbd")?.getBoundingClientRect().height || 0;
 
-    // padding interno (márgenes) que tú mismo aplicas
-    const padding = 24; // 12px izq + 12px der, aprox para ancho también
+    const usableH = Math.max(0, vh - topbarH - headH - kbdH - 8); // sin constantes mágicas
+    const usableW = Math.max(0, el.clientWidth - 24);
 
-    // espacio disponible SOLO para el tablero
-    const boardH = Math.max(0, vh - kbdH - 96); // 96 ≈ título+botones+aire
-    const boardW = Math.max(0, el.clientWidth - padding);
-
-    const byHeight = Math.floor(boardH / 6);
-    const byWidth  = Math.floor(boardW / 5);
-    const tile = Math.max(28, Math.min(byHeight, byWidth, 64));
+    const byH = Math.floor(usableH / 6);
+    const byW = Math.floor(usableW / 5);
+    const tile = Math.max(28, Math.min(byH, byW, 64));
     el.style.setProperty("--tile", `${tile}px`);
   };
 
+  const ro = new ResizeObserver(layout);          // re-calc cuando cambie el teclado
+  const kbd = el.querySelector(".wordle-kbd");
+  if (kbd) ro.observe(kbd);
+
   layout();
-  window.addEventListener("resize", layout, { passive: true });
-  window.visualViewport?.addEventListener("resize", layout, { passive: true });
+  window.addEventListener("resize", layout, { passive:true });
+  window.visualViewport?.addEventListener("resize", layout, { passive:true });
   return () => {
+    ro.disconnect();
     window.removeEventListener("resize", layout);
     window.visualViewport?.removeEventListener("resize", layout);
   };
 }, [answer]);
 
-
-    layout();
-    window.addEventListener("resize", layout, { passive: true });
-    window.visualViewport?.addEventListener("resize", layout, { passive: true });
-    return () => {
-      window.removeEventListener("resize", layout);
-      window.visualViewport?.removeEventListener("resize", layout);
-    };
-  }, [answer]);
 
   return (
     <div
@@ -109,14 +100,15 @@ export default function SolveWord() {
         overflow: "hidden",
       }}
     >
-      {/* Título + botones centrados */}
+      {/* título + botones centrados (medimos este bloque) */}
       <div
+        ref={headerRef}
         style={{
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           gap: 12,
-          marginBottom: 16,
+          marginBottom: 8,
           textAlign: "center",
         }}
       >
@@ -128,24 +120,15 @@ export default function SolveWord() {
             : t.resolver}
         </h2>
         <div style={{ display: "flex", gap: 12 }}>
-          <button
-            className="btn-secondary"
-            style={{ height: 36, padding: "0 16px" }}
-            onClick={() => nav("/wordle/crear")}
-          >
+          <button className="btn-secondary" style={{ height: 36, padding: "0 16px" }} onClick={() => nav("/wordle/crear")}>
             {t.crear || "Crear"}
           </button>
-          <button
-            className="btn-primary"
-            style={{ height: 36, padding: "0 16px" }}
-            onClick={nextWord}
-          >
+          <button className="btn-primary" style={{ height: 36, padding: "0 16px" }} onClick={nextWord}>
             {t.siguiente || "Siguiente"}
           </button>
         </div>
       </div>
 
-      {/* Juego */}
       <div style={{ flex: 1, overflow: "hidden" }}>
         {loading && <p style={{ fontSize: 14 }}>Cargando…</p>}
         {!loading && !answer && <p style={{ fontSize: 14 }}>No hay palabras recientes.</p>}
