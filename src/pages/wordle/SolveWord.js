@@ -47,25 +47,40 @@ export default function SolveWord() {
 
   // Layout responsivo con visualViewport (iOS/Android)
   useLayoutEffect(() => {
-    const el = rootRef.current;
-    if (!el) return;
+  const el = rootRef.current;
+  if (!el) return;
 
-    const layout = () => {
-      const vh =
-        window.visualViewport?.height ||
-        Math.max(window.innerHeight, document.documentElement.clientHeight);
+  const layout = () => {
+    // alto visible real incluso con teclado
+    const vh = window.visualViewport?.height
+      ?? Math.max(window.innerHeight, document.documentElement.clientHeight);
 
-      const headerH = 56; // título+botones aprox
-      const gaps = 48;
-      const availableH = vh - headerH - gaps;
+    // alto ocupado por el teclado propio del juego
+    const kbdEl = el.querySelector(".wordle-kbd");
+    const kbdH = kbdEl ? kbdEl.getBoundingClientRect().height : 0;
 
-      const w = el.clientWidth - 24; // padding horizontal
+    // padding interno (márgenes) que tú mismo aplicas
+    const padding = 24; // 12px izq + 12px der, aprox para ancho también
 
-      const byHeight = Math.floor(availableH / 6);
-      const byWidth = Math.floor(w / 5);
-      const tile = Math.max(28, Math.min(byHeight, byWidth, 64)); // clamp
-      el.style.setProperty("--tile", `${tile}px`);
-    };
+    // espacio disponible SOLO para el tablero
+    const boardH = Math.max(0, vh - kbdH - 96); // 96 ≈ título+botones+aire
+    const boardW = Math.max(0, el.clientWidth - padding);
+
+    const byHeight = Math.floor(boardH / 6);
+    const byWidth  = Math.floor(boardW / 5);
+    const tile = Math.max(28, Math.min(byHeight, byWidth, 64));
+    el.style.setProperty("--tile", `${tile}px`);
+  };
+
+  layout();
+  window.addEventListener("resize", layout, { passive: true });
+  window.visualViewport?.addEventListener("resize", layout, { passive: true });
+  return () => {
+    window.removeEventListener("resize", layout);
+    window.visualViewport?.removeEventListener("resize", layout);
+  };
+}, [answer]);
+
 
     layout();
     window.addEventListener("resize", layout, { passive: true });
