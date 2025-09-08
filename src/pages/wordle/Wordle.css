@@ -8,20 +8,21 @@
 }
 
 .wordle-root{
-  display:grid;
-  grid-template-rows: 1fr auto; /* tablero + teclado */
-  height:100%;
-  overflow:hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
 }
 
-/* TABLERO */
 .wordle-board{
-  display:grid;
-  align-content:center;
-  justify-content:center;
+  flex: 1 0 auto;
+  display: grid;
+  justify-content: center;
   gap: var(--gap);
   grid-auto-rows: var(--tile);
+  align-content: end; /* ↓ en vez de center: tablero se pega al teclado */
 }
+
 .wordle-row{
   display:grid;
   grid-template-columns: repeat(5, var(--tile));
@@ -51,31 +52,31 @@
   padding-bottom: calc(env(safe-area-inset-bottom) + 12px);
   width: 100%;
   box-sizing: border-box;
-  overflow-x: hidden; /* chrome subpíxel */
+  overflow: hidden;              /* <- quita barras en desktop */
 }
-
-:root{ --kbd-gap: clamp(3px, 1.2vw, 8px); } /* gap adaptativo */
 
 .kbd-rows{
   display: grid;
-  gap: var(--kbd-gap);
+  gap: var(--kbd-gap, 8px);
   width: 100%;
   box-sizing: border-box;
+  overflow: hidden;              /* <- asegura sin scroll interno */
 }
 
 .kbd-row{
   display: flex;
-  gap: var(--kbd-gap);
+  gap: var(--kbd-gap, 8px);
   justify-content: center;
   flex-wrap: nowrap;
   width: 100%;
   box-sizing: border-box;
-  padding: 0 10px;              /* colchón lateral suficiente */
+  padding: 0 10px;
+  overflow: hidden;              /* <- anti clipping Chrome */
 }
 
 .kbd-btn{
   min-width: 0;
-  flex: 1 1 0.0001px;           /* puede encoger sin cortar letras */
+  flex: 1 1 0.0001px;
   height: 48px;
   border-radius: 8px;
   border: 1px solid #e5e7eb;

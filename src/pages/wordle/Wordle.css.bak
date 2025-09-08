@@ -51,24 +51,26 @@
   padding-bottom: calc(env(safe-area-inset-bottom) + 12px);
   width: 100%;
   box-sizing: border-box;
+  overflow: hidden;              /* <- quita barras en desktop */
 }
 
 .kbd-rows{
   display: grid;
-  gap: 8px;
+  gap: var(--kbd-gap, 8px);
   width: 100%;
   box-sizing: border-box;
+  overflow: hidden;              /* <- asegura sin scroll interno */
 }
 
-/* anti-clip: compensar subpíxel en Chrome desktop */
 .kbd-row{
   display: flex;
-  gap: 5px;
+  gap: var(--kbd-gap, 8px);
   justify-content: center;
   flex-wrap: nowrap;
-  width: calc(100% - 1px);   /* <- 1px de colchón */
+  width: 100%;
   box-sizing: border-box;
-  padding: 0 8px;
+  padding: 0 10px;
+  overflow: hidden;              /* <- anti clipping Chrome */
 }
 
 .kbd-btn{
@@ -84,12 +86,7 @@
 }
 .kbd-btn.wide{ flex: 2 1 0.0001px; }
 
-/* desktop: reduce aún más el gap para evitar recorte en anchos raros */
-@media (pointer:fine) and (min-width: 600px){
-  .kbd-row{ gap: 4px; padding: 0 10px; width: calc(100% - 2px); }
-}
-
-
+/* colores */
 .kbd-btn.correct{ background: var(--ok); color:#fff; border-color: var(--ok); }
 .kbd-btn.present{ background: var(--present); color:#111; border-color: var(--present); }
 .kbd-btn.absent { background: var(--absent); color:#fff; border-color: var(--absent); }
