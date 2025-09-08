@@ -19,21 +19,20 @@ export default function SolveWord() {
   const headerRef = useRef(null); // << medir cabecera local
 
   useEffect(() => {
-    (async () => {
-      setLoading(true);
-      const { data } = await supabase
-        .from("user_words")
-        .select("id, word_norm, language, created_by_name, created_at")
-        .eq("language", langSafe)
-        .gte("created_at", new Date(Date.now() - 72 * 3600 * 1000).toISOString())
-        .order("created_at", { ascending: false })
-        .limit(100);
-      const arr = data || [];
-      setList(arr);
-      setIdx(0);
-      setAnswer(arr[0] ? { ...arr[0], word: arr[0].word_norm } : null);
-      setLoading(false);
-    })();
+  const html = document.documentElement;
+  const body = document.body;
+  const prevHtmlOverflow = html.style.overflow;
+  const prevBodyOverflow = body.style.overflow;
+
+  html.style.overflow = "hidden";
+  body.style.overflow = "hidden";
+
+  return () => {
+    html.style.overflow = prevHtmlOverflow;
+    body.style.overflow = prevBodyOverflow;
+  };
+}, []);
+
   }, [langSafe]);
 
   const nextWord = () => {
@@ -46,39 +45,41 @@ export default function SolveWord() {
     });
   };
 
-  // Layout sin scroll: usa visualViewport y resta cabecera + teclado
   useLayoutEffect(() => {
-    const el = rootRef.current;
-    if (!el) return;
+  const el = rootRef.current;
+  if (!el) return;
 
-    const layout = () => {
-      const vh =
-        window.visualViewport?.height ??
-        Math.max(window.innerHeight, document.documentElement.clientHeight);
+  const layout = () => {
+    const vh = window.visualViewport?.height
+      ?? Math.max(window.innerHeight, document.documentElement.clientHeight);
 
-      const topbarH =
-        document.querySelector(".game-topbar")?.getBoundingClientRect().height || 0;
-      const headerH = headerRef.current?.getBoundingClientRect().height || 0;
-      const kbdH = el.querySelector(".wordle-kbd")?.getBoundingClientRect().height || 0;
+    const topbarH = document.querySelector(".game-topbar")?.getBoundingClientRect().height || 0;
+    const headH   = el.querySelector("[data-wordle-head]")?.getBoundingClientRect().height || 0;
+    const kbdH    = el.querySelector(".wordle-kbd")?.getBoundingClientRect().height || 0;
 
-      // altura útil exclusiva para el tablero
-      const usableH = Math.max(0, vh - topbarH - headerH - kbdH - 8);
-      const usableW = Math.max(0, el.clientWidth - 24);
+    const usableH = Math.max(0, vh - topbarH - headH - kbdH - 8); // sin constantes mágicas
+    const usableW = Math.max(0, el.clientWidth - 24);
 
-      const byHeight = Math.floor(usableH / 6);
-      const byWidth  = Math.floor(usableW / 5);
-      const tile = Math.max(28, Math.min(byHeight, byWidth, 64));
-      el.style.setProperty("--tile", `${tile}px`);
-    };
+    const byH = Math.floor(usableH / 6);
+    const byW = Math.floor(usableW / 5);
+    const tile = Math.max(28, Math.min(byH, byW, 64));
+    el.style.setProperty("--tile", `${tile}px`);
+  };
 
-    layout();
-    window.addEventListener("resize", layout, { passive: true });
-    window.visualViewport?.addEventListener("resize", layout, { passive: true });
-    return () => {
-      window.removeEventListener("resize", layout);
-      window.visualViewport?.removeEventListener("resize", layout);
-    };
-  }, [answer]);
+  const ro = new ResizeObserver(layout);          // re-calc cuando cambie el teclado
+  const kbd = el.querySelector(".wordle-kbd");
+  if (kbd) ro.observe(kbd);
+
+  layout();
+  window.addEventListener("resize", layout, { passive:true });
+  window.visualViewport?.addEventListener("resize", layout, { passive:true });
+  return () => {
+    ro.disconnect();
+    window.removeEventListener("resize", layout);
+    window.visualViewport?.removeEventListener("resize", layout);
+  };
+}, [answer]);
+
 
   return (
     <div

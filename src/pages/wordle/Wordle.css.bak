@@ -7,21 +7,24 @@
   --border: #d0d7de;
 }
 
+/* sin hueco entre tablero y teclado */
 .wordle-root{
-  display:grid;
-  grid-template-rows: 1fr auto; /* tablero + teclado */
+  display:flex;           /* antes grid */
+  flex-direction:column;
   height:100%;
   overflow:hidden;
 }
-
-/* TABLERO */
 .wordle-board{
+  flex:1 0 auto;
   display:grid;
-  align-content:center;
   justify-content:center;
-  gap: var(--gap);
-  grid-auto-rows: var(--tile);
+  align-content:end;      /* pega el tablero al teclado */
+  gap:var(--gap);
+  grid-auto-rows:var(--tile);
+  padding-bottom:4px;
 }
+
+
 .wordle-row{
   display:grid;
   grid-template-columns: repeat(5, var(--tile));
@@ -39,7 +42,12 @@
 }
 .wordle-cell.correct { background: var(--ok); color:#fff; border-color: var(--ok); }
 .wordle-cell.present { background: var(--present); color:#111; border-color: var(--present); }
-.wordle-cell.absent  { background: #e5e7eb; color:#111; border-color:#e5e7eb; }
+.wordle-cell.absent  { background: var(--absent); color:#fff; border-color: var(--absent); }
+html.dark .wordle-cell.correct { background: var(--ok); color:#fff; border-color: var(--ok); }
+html.dark .wordle-cell.present { background: var(--present); color:#111; border-color: var(--present); }
+html.dark .wordle-cell.absent  { background: var(--absent); color:#fff; border-color: var(--absent); }
+
+
 
 /* TECLADO iOS/desktop-safe */
 .wordle-kbd{

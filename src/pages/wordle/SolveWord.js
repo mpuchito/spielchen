@@ -18,23 +18,41 @@ export default function SolveWord() {
   const rootRef = useRef(null);
   const headerRef = useRef(null); // << medir cabecera local
 
-  useEffect(() => {
-    (async () => {
-      setLoading(true);
-      const { data } = await supabase
-        .from("user_words")
-        .select("id, word_norm, language, created_by_name, created_at")
-        .eq("language", langSafe)
-        .gte("created_at", new Date(Date.now() - 72 * 3600 * 1000).toISOString())
-        .order("created_at", { ascending: false })
-        .limit(100);
-      const arr = data || [];
-      setList(arr);
-      setIdx(0);
-      setAnswer(arr[0] ? { ...arr[0], word: arr[0].word_norm } : null);
-      setLoading(false);
-    })();
-  }, [langSafe]);
+  // este es el que ya tienes, se queda tal cual
+useEffect(() => {
+  (async () => {
+    setLoading(true);
+    const { data } = await supabase
+      .from("user_words")
+      .select("id, word_norm, language, created_by_name, created_at")
+      .eq("language", langSafe)
+      .gte("created_at", new Date(Date.now() - 72 * 3600 * 1000).toISOString())
+      .order("created_at", { ascending: false })
+      .limit(100);
+    const arr = data || [];
+    setList(arr);
+    setIdx(0);
+    setAnswer(arr[0] ? { ...arr[0], word: arr[0].word_norm } : null);
+    setLoading(false);
+  })();
+}, [langSafe]);
+
+
+useEffect(() => {
+  const html = document.documentElement;
+  const body = document.body;
+  const prevHtmlOverflow = html.style.overflow;
+  const prevBodyOverflow = body.style.overflow;
+
+  html.style.overflow = "hidden";
+  body.style.overflow = "hidden";
+
+  return () => {
+    html.style.overflow = prevHtmlOverflow;
+    body.style.overflow = prevBodyOverflow;
+  };
+}, []);
+
 
   const nextWord = () => {
     if (!list.length) return;

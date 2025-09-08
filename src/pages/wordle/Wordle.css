@@ -8,20 +8,26 @@
 }
 
 .wordle-root{
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
+  display:grid;                   /* volvemos a grid */
+  grid-template-rows: auto 1fr auto; /* cabecera (si hay), tablero flexible, teclado fijo */
+  height:100%;
+  overflow:hidden;
 }
 
 .wordle-board{
-  flex: 1 0 auto;
-  display: grid;
-  justify-content: center;
-  gap: var(--gap);
-  grid-auto-rows: var(--tile);
-  align-content: end; /* ↓ en vez de center: tablero se pega al teclado */
+  display:grid;
+  justify-content:center;
+  align-content:center;           /* centrado natural */
+  gap:var(--gap);
+  grid-auto-rows:var(--tile);
 }
+@media (max-height: 700px) {
+  .wordle-board{
+    align-content:end;            /* en pantallas bajas o con teclado, pega abajo */
+  }
+}
+
+
 
 .wordle-row{
   display:grid;
@@ -40,7 +46,12 @@
 }
 .wordle-cell.correct { background: var(--ok); color:#fff; border-color: var(--ok); }
 .wordle-cell.present { background: var(--present); color:#111; border-color: var(--present); }
-.wordle-cell.absent  { background: #e5e7eb; color:#111; border-color:#e5e7eb; }
+.wordle-cell.absent  { background: var(--absent); color:#fff; border-color: var(--absent); }
+html.dark .wordle-cell.correct { background: var(--ok); color:#fff; border-color: var(--ok); }
+html.dark .wordle-cell.present { background: var(--present); color:#111; border-color: var(--present); }
+html.dark .wordle-cell.absent  { background: var(--absent); color:#fff; border-color: var(--absent); }
+
+
 
 /* TECLADO iOS/desktop-safe */
 .wordle-kbd{
