@@ -8,23 +8,26 @@
 }
 
 .wordle-root{
-  display:grid;                   /* volvemos a grid */
-  grid-template-rows: auto 1fr auto; /* cabecera (si hay), tablero flexible, teclado fijo */
-  height:100%;
+  display:flex;
+  flex-direction:column;
+  height:100%;          /* el alto real lo fijamos por JS */
+  min-height:0;         /* muy importante en iOS */
   overflow:hidden;
 }
 
 .wordle-board{
+  flex:1 1 auto;
+  min-height:0;         /* evita que empuje al teclado */
   display:grid;
   justify-content:center;
-  align-content:center;           /* centrado natural */
+  align-content:end;    /* tablero pegado al teclado */
   gap:var(--gap);
   grid-auto-rows:var(--tile);
+  padding-bottom:4px;
 }
-@media (max-height: 700px) {
-  .wordle-board{
-    align-content:end;            /* en pantallas bajas o con teclado, pega abajo */
-  }
+
+@media (pointer:fine) {
+  [data-wordle-head]{ margin-bottom: 4px !important; }
 }
 
 

@@ -7,22 +7,32 @@
   --border: #d0d7de;
 }
 
-/* sin hueco entre tablero y teclado */
 .wordle-root{
-  display:flex;           /* antes grid */
+  display:flex;
   flex-direction:column;
-  height:100%;
+  height:100%;          /* el alto real lo fijamos por JS */
+  min-height:0;         /* muy importante en iOS */
   overflow:hidden;
 }
+
 .wordle-board{
-  flex:1 0 auto;
+  flex:1 1 auto;
+  min-height:0;         /* evita que empuje al teclado */
   display:grid;
   justify-content:center;
-  align-content:end;      /* pega el tablero al teclado */
+  align-content:end;    /* tablero pegado al teclado */
   gap:var(--gap);
   grid-auto-rows:var(--tile);
   padding-bottom:4px;
 }
+
+/* desktop o ventanas altas -> centrado */
+@media (pointer:fine), (min-height: 780px) {
+  .wordle-board{
+    align-content: center;
+  }
+}
+
 
 
 .wordle-row{

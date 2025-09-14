@@ -16,43 +16,40 @@ export default function SolveWord() {
   const [loading, setLoading] = useState(true);
 
   const rootRef = useRef(null);
-  const headerRef = useRef(null); // << medir cabecera local
+  const headerRef = useRef(null); // medimos cabecera local
 
-  // este es el que ya tienes, se queda tal cual
-useEffect(() => {
-  (async () => {
-    setLoading(true);
-    const { data } = await supabase
-      .from("user_words")
-      .select("id, word_norm, language, created_by_name, created_at")
-      .eq("language", langSafe)
-      .gte("created_at", new Date(Date.now() - 72 * 3600 * 1000).toISOString())
-      .order("created_at", { ascending: false })
-      .limit(100);
-    const arr = data || [];
-    setList(arr);
-    setIdx(0);
-    setAnswer(arr[0] ? { ...arr[0], word: arr[0].word_norm } : null);
-    setLoading(false);
-  })();
-}, [langSafe]);
+  // Carga desde Supabase
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      const { data } = await supabase
+        .from("user_words")
+        .select("id, word_norm, language, created_by_name, created_at")
+        .eq("language", langSafe)
+        .gte("created_at", new Date(Date.now() - 72 * 3600 * 1000).toISOString())
+        .order("created_at", { ascending: false })
+        .limit(100);
+      const arr = data || [];
+      setList(arr);
+      setIdx(0);
+      setAnswer(arr[0] ? { ...arr[0], word: arr[0].word_norm } : null);
+      setLoading(false);
+    })();
+  }, [langSafe]);
 
-
-useEffect(() => {
-  const html = document.documentElement;
-  const body = document.body;
-  const prevHtmlOverflow = html.style.overflow;
-  const prevBodyOverflow = body.style.overflow;
-
-  html.style.overflow = "hidden";
-  body.style.overflow = "hidden";
-
-  return () => {
-    html.style.overflow = prevHtmlOverflow;
-    body.style.overflow = prevBodyOverflow;
-  };
-}, []);
-
+  // Bloquear scroll del documento mientras está esta pantalla
+  useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+    const prevHtmlOverflow = html.style.overflow;
+    const prevBodyOverflow = body.style.overflow;
+    html.style.overflow = "hidden";
+    body.style.overflow = "hidden";
+    return () => {
+      html.style.overflow = prevHtmlOverflow;
+      body.style.overflow = prevBodyOverflow;
+    };
+  }, []);
 
   const nextWord = () => {
     if (!list.length) return;
@@ -64,47 +61,54 @@ useEffect(() => {
     });
   };
 
+  // Layout: usa visualViewport, fija alto real del contenedor y calcula --tile
   useLayoutEffect(() => {
-  const el = rootRef.current;
-  if (!el) return;
+    const el = rootRef.current;
+    if (!el) return;
 
-  const layout = () => {
-    const vh = window.visualViewport?.height
-      ?? Math.max(window.innerHeight, document.documentElement.clientHeight);
+    const layout = () => {
+      const vv = window.visualViewport?.height
+        ?? Math.max(window.innerHeight, document.documentElement.clientHeight);
 
-    const topbarH = document.querySelector(".game-topbar")?.getBoundingClientRect().height || 0;
-    const headH   = el.querySelector("[data-wordle-head]")?.getBoundingClientRect().height || 0;
-    const kbdH    = el.querySelector(".wordle-kbd")?.getBoundingClientRect().height || 0;
+      const topbarH =
+        document.querySelector(".game-topbar")?.getBoundingClientRect().height || 0;
 
-    const usableH = Math.max(0, vh - topbarH - headH - kbdH - 8); // sin constantes mágicas
-    const usableW = Math.max(0, el.clientWidth - 24);
+      // fija altura real del contenedor visible (sin topbar)
+      const containerH = Math.max(0, vv - topbarH);
+      el.style.height = `${containerH}px`;
 
-    const byH = Math.floor(usableH / 6);
-    const byW = Math.floor(usableW / 5);
-    const tile = Math.max(28, Math.min(byH, byW, 64));
-    el.style.setProperty("--tile", `${tile}px`);
-  };
+      // calcula tamaño de casilla con alturas reales
+      const headH = el.querySelector("[data-wordle-head]")?.getBoundingClientRect().height || 0;
+      const kbdH  = el.querySelector(".wordle-kbd")?.getBoundingClientRect().height || 0;
 
-  const ro = new ResizeObserver(layout);          // re-calc cuando cambie el teclado
-  const kbd = el.querySelector(".wordle-kbd");
-  if (kbd) ro.observe(kbd);
+      const usableH = Math.max(0, containerH - headH - kbdH - 6);
+      const usableW = Math.max(0, el.clientWidth - 24);
 
-  layout();
-  window.addEventListener("resize", layout, { passive:true });
-  window.visualViewport?.addEventListener("resize", layout, { passive:true });
-  return () => {
-    ro.disconnect();
-    window.removeEventListener("resize", layout);
-    window.visualViewport?.removeEventListener("resize", layout);
-  };
-}, [answer]);
+      const byH = Math.floor(usableH / 6);
+      const byW = Math.floor(usableW / 5);
+      const tile = Math.max(28, Math.min(byH, byW, 64));
+      el.style.setProperty("--tile", `${tile}px`);
+    };
 
+    const ro = new ResizeObserver(layout);
+    const kbd = el.querySelector(".wordle-kbd");
+    if (kbd) ro.observe(kbd);
+
+    layout();
+    window.addEventListener("resize", layout, { passive: true });
+    window.visualViewport?.addEventListener("resize", layout, { passive: true });
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", layout);
+      window.visualViewport?.removeEventListener("resize", layout);
+    };
+  }, [answer]);
 
   return (
     <div
       ref={rootRef}
       style={{
-        height: "100svh",
+        height: "100svh", // se sobrescribe dinámicamente con visualViewport
         padding: 12,
         paddingLeft: "max(12px, env(safe-area-inset-left))",
         paddingRight: "max(12px, env(safe-area-inset-right))",
@@ -116,11 +120,13 @@ useEffect(() => {
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",
+        minHeight: 0,
       }}
     >
-      {/* título + botones centrados (medimos este bloque) */}
+      {/* título + botones (marcado para medición) */}
       <div
         ref={headerRef}
+        data-wordle-head
         style={{
           display: "flex",
           flexDirection: "column",
@@ -138,16 +144,25 @@ useEffect(() => {
             : t.resolver}
         </h2>
         <div style={{ display: "flex", gap: 12 }}>
-          <button className="btn-secondary" style={{ height: 36, padding: "0 16px" }} onClick={() => nav("/wordle/crear")}>
+          <button
+            className="btn-secondary"
+            style={{ height: 36, padding: "0 16px" }}
+            onClick={() => nav("/wordle/crear")}
+          >
             {t.crear || "Crear"}
           </button>
-          <button className="btn-primary" style={{ height: 36, padding: "0 16px" }} onClick={nextWord}>
+          <button
+            className="btn-primary"
+            style={{ height: 36, padding: "0 16px" }}
+            onClick={nextWord}
+          >
             {t.siguiente || "Siguiente"}
           </button>
         </div>
       </div>
 
-      <div style={{ flex: 1, overflow: "hidden" }}>
+      {/* juego */}
+      <div style={{ flex: 1, overflow: "hidden", minHeight: 0 }}>
         {loading && <p style={{ fontSize: 14 }}>Cargando…</p>}
         {!loading && !answer && <p style={{ fontSize: 14 }}>No hay palabras recientes.</p>}
         {answer && (
