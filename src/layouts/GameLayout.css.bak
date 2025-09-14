@@ -95,3 +95,23 @@
 }
 .btn-primary:hover{ background:var(--primary-600); box-shadow:var(--shadow); }
 .btn-primary:focus-visible{ box-shadow:0 0 0 4px var(--ring); }
+
+/* -------- Dark mode global -------- */
+html.dark {
+  --bg:#0f172a;
+  --card:#1f2937;
+  --text:#e5e7eb;
+  --muted:#9ca3af;
+  --primary:#3b82f6;
+  --primary-600:#2563eb;
+  --ring: rgba(59,130,246,.35);
+}
+
+html.dark body { background: var(--bg); color: var(--text); }
+
+html.dark .btn {
+  background:#374151; color:#f3f4f6; border-color:#4b5563;
+}
+html.dark .back-btn {
+  background:var(--primary); color:#fff;
+}

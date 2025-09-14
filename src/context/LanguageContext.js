@@ -26,8 +26,7 @@ const translationsData = {
       createTitle:"Raum erstellen", createLabel:"Name des Raums", createCta:"Erstellen",
       cancel:"Abbrechen", joinFirst:"Zuerst einem Raum beitreten/erstellen." },
     user: { createTitle:"Temporären Benutzer erstellen", createLabel:"Gib deinen Namen ein, um zu spielen:", confirm:"Starten", cancel:"Abbrechen" },
-    wordle:{ title:"Wordle", resolver:"Wort lösen", crear:"Wort erstellen", jugando:"Wordle spielen",
-      correcto:"Richtig", error:"Keine Versuche mehr", de:"von", del_dia:"am", probar:"Prüfen", siguiente:"Nächstes Wort" }
+    wordle:{ title:"Wordle", resolver:"Wort lösen", crear:"Wort erstellen", jugando:"Wordle spielen", crear: "Erstellen", siguiente: "Nächste", resolver: "Löse das Wort von", del_dia: "am", no_words: "Keine aktuellen Wörter.", correcto:"Richtig", error:"Keine Versuche mehr", de:"von", del_dia:"am", probar:"Prüfen", siguiente:"Nächstes Wort"}
   },
   en: {
     menu:{ blanco:"Blanco", wavelength:"Wavelength", vergiftet:"Poisoned" },
@@ -51,8 +50,7 @@ const translationsData = {
       createTitle:"Create room", createLabel:"Room name", createCta:"Create", cancel:"Cancel",
       joinFirst:"Create/join a room first." },
     user:{ createTitle:"Create temporary user", createLabel:"Enter your name to play:", confirm:"Start", cancel:"Cancel" },
-    wordle:{ title:"Wordle", resolver:"Solve word", crear:"Create word", jugando:"Playing Wordle",
-      correcto:"Correct", error:"No tries left", de:"by", del_dia:"on", probar:"Check", siguiente:"Next word" }
+    wordle:{ title:"Wordle", resolver:"Solve word", crear:"Create word", jugando:"Playing Wordle", crear: "Create", siguiente: "Next", resolver: "Solve word from", del_dia: "on", no_words: "No recent words.", correcto:"Correct", error:"No tries left", de:"by", del_dia:"on", probar:"Check", siguiente:"Next word"}
   },
   es: {
     menu:{ blanco:"Blanco", wavelength:"Wavelength", vergiftet:"Envenenado" },
@@ -76,8 +74,7 @@ const translationsData = {
       createTitle:"Crear sala", createLabel:"Nombre de la sala", createCta:"Crear", cancel:"Cancelar",
       joinFirst:"Crea/únete a una sala primero." },
     user:{ createTitle:"Crear usuario temporal", createLabel:"Escribe tu nombre para jugar:", confirm:"Empezar", cancel:"Cancelar" },
-    wordle:{ title:"Wordle", resolver:"Resolver palabra", crear:"Crear palabra", jugando:"Jugando Wordle",
-      correcto:"Correcto", error:"Sin intentos", de:"de", del_dia:"del día", probar:"Probar", siguiente:"Siguiente palabra" }
+    wordle:{ title:"Wordle", resolver:"Resolver palabra", crear:"Crear palabra", jugando:"Jugando Wordle", crear: "Crear", siguiente: "Siguiente", resolver: "Resolver palabra de", del_dia: "del día", no_words: "No hay palabras recientes.", correcto:"Correcto", error:"Sin intentos", de:"de", del_dia:"del día", probar:"Probar", siguiente:"Siguiente palabra"}
   }
 };
 

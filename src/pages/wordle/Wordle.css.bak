@@ -7,33 +7,17 @@
   --border: #d0d7de;
 }
 
-.wordle-root{
-  display:flex;
-  flex-direction:column;
-  height:100%;          /* el alto real lo fijamos por JS */
-  min-height:0;         /* muy importante en iOS */
-  overflow:hidden;
-}
-
+.wordle-root{ width:100%; }
+/* mismo ancho visual para tablero y teclado */
 .wordle-board{
-  flex:1 1 auto;
-  min-height:0;         /* evita que empuje al teclado */
-  display:grid;
-  justify-content:center;
-  align-content:end;    /* tablero pegado al teclado */
-  gap:var(--gap);
-  grid-auto-rows:var(--tile);
-  padding-bottom:4px;
+  width: min(100%, calc(5 * var(--tile) + 4 * var(--gap)));
+  margin-left: auto;
+  margin-right: auto;
 }
 
-/* desktop o ventanas altas -> centrado */
-@media (pointer:fine), (min-height: 780px) {
-  .wordle-board{
-    align-content: center;
-  }
+@media (pointer:fine) {
+  [data-wordle-head]{ margin-bottom: 4px !important; }
 }
-
-
 
 .wordle-row{
   display:grid;
@@ -57,57 +41,69 @@ html.dark .wordle-cell.correct { background: var(--ok); color:#fff; border-color
 html.dark .wordle-cell.present { background: var(--present); color:#111; border-color: var(--present); }
 html.dark .wordle-cell.absent  { background: var(--absent); color:#fff; border-color: var(--absent); }
 
-
-
-/* TECLADO iOS/desktop-safe */
 .wordle-kbd{
-  position: sticky;
-  bottom: env(safe-area-inset-bottom);
-  padding: 12px;
-  padding-left: max(12px, env(safe-area-inset-left));
-  padding-right: max(12px, env(safe-area-inset-right));
-  padding-bottom: calc(env(safe-area-inset-bottom) + 12px);
   width: 100%;
   box-sizing: border-box;
-  overflow: hidden;              /* <- quita barras en desktop */
+  overflow: hidden;
+  padding-left: max(8px, env(safe-area-inset-left));
+  padding-right: max(8px, env(safe-area-inset-right));
 }
-
 .kbd-rows{
-  display: grid;
-  gap: var(--kbd-gap, 8px);
-  width: 100%;
-  box-sizing: border-box;
-  overflow: hidden;              /* <- asegura sin scroll interno */
+  width: min(100%, calc(5 * var(--tile) + 4 * var(--gap)));
+  margin-left: auto;
+  margin-right: auto;
 }
+.kbd-row{
+  width:100%;
+  box-sizing:border-box;
+  padding: 0 10px;     /* colchón fijo */
+  gap: 6px;            /* compacto para que nunca desborde */
+  overflow:hidden;
+}
+/* --- HARD FIX teclado apilado/azul en desktop --- */
+.wordle-kbd,
+.kbd-rows,
+.kbd-row { width:100%; box-sizing:border-box; }
 
 .kbd-row{
-  display: flex;
-  gap: var(--kbd-gap, 8px);
-  justify-content: center;
-  flex-wrap: nowrap;
-  width: 100%;
-  box-sizing: border-box;
-  padding: 0 10px;
-  overflow: hidden;              /* <- anti clipping Chrome */
+  display:flex !important;
+  flex-wrap:nowrap;
+  justify-content:center;  /* <-- centra horizontalmente */
+  gap:6px;
+  padding:0;               /* quita márgenes laterales extras */
+  width:100%;
+  box-sizing:border-box;
 }
 
+
+/* reset completo de los botones del teclado */
 .kbd-btn{
-  min-width: 0;
-  flex: 1 1 0.0001px;
-  height: 48px;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
-  background: #e5e7eb;
-  color: #111;
-  font-weight: 700;
-  cursor: pointer;
+  all:unset;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-width:32px;          /* ancho mínimo legible */
+  flex:0 0 auto;           /* no se estiran todos iguales */
+  height:48px;
+  margin:0;
+  border-radius:8px;
+  border:1px solid #e5e7eb;
+  background:#e5e7eb;
+  color:#111;
+  font-weight:700;
+  cursor:pointer;
+  user-select:none;
 }
-.kbd-btn.wide{ flex: 2 1 0.0001px; }
+.kbd-btn.wide{ flex:0 0 56px; } /* enter/borrar más anchos */
+.kbd-btn:focus{ outline:none; }
 
-/* colores */
+/* estados */
 .kbd-btn.correct{ background: var(--ok); color:#fff; border-color: var(--ok); }
 .kbd-btn.present{ background: var(--present); color:#111; border-color: var(--present); }
 .kbd-btn.absent { background: var(--absent); color:#fff; border-color: var(--absent); }
+
+/* por si algún global pone width:100% a los botones */
+.wordle-kbd button:not(.kbd-btn){ width:auto; }
 
 /* input oculto para teclado físico */
 .wordle-hidden-input{
